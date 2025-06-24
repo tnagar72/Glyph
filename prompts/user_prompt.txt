@@ -1,0 +1,17 @@
+## Current Markdown File ({filename}):
+```markdown
+{markdown_content}
+```
+
+## File Analysis:
+- Total lines: {line_count}
+- Sections found: {sections}
+- Tasks detected: {task_count} ({completed_tasks} completed, {pending_tasks} pending)
+- Links found: {link_count}
+- Tags found: {tag_count}
+
+## User Voice Instruction:
+"{instruction}"
+
+## Expected Output:
+Please return the modified markdown file content below (no code fences, no explanations):
