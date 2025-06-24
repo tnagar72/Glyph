@@ -1,6 +1,6 @@
 <!-- Logo placeholder - TODO: Add project mascot/logo -->
 
-# 🎙️ Voice Markdown Editor
+# Voice Markdown Editor
 
 **Transform your voice into intelligent markdown edits using Whisper and GPT-4**
 
