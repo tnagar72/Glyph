@@ -18,8 +18,8 @@ This project combines local speech recognition (OpenAI Whisper) with GPT-4 to cr
 
 1. **Fork and clone the repository:**
 ```bash
-git clone https://github.com/your-username/voice-markdown-editor.git
-cd voice-markdown-editor
+git clone https://github.com/tnagar72/VoiceMark.git
+cd VoiceMark
 ```
 
 2. **Set up virtual environment:**

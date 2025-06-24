@@ -242,8 +242,8 @@ python main.py --file notes.md --dry-run --verbose
 ### Q: How do I set up a development environment?
 **A:**
 ```bash
-git clone https://github.com/your-username/voice-markdown-editor.git
-cd voice-markdown-editor
+git clone https://github.com/tnagar72/VoiceMark.git
+cd VoiceMark
 python -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
@@ -275,4 +275,4 @@ cp .env.example .env
 
 ---
 
-**Still have questions?** Check the [documentation](docs/) or [open an issue](https://github.com/your-username/voice-markdown-editor/issues) on GitHub!
+**Still have questions?** Check the [documentation](docs/) or [open an issue](https://github.com/tnagar72/VoiceMark/issues) on GitHub!

@@ -16,18 +16,18 @@ def read_requirements():
         return [line.strip() for line in f if line.strip() and not line.startswith("#")]
 
 setup(
-    name="voice-markdown-editor",  # Will be updated with final project name
+    name="voicemark",
     version="1.0.0",
-    author="Voice Markdown Editor Contributors",
-    author_email="your-email@example.com",  # Update with actual email
+    author="VoiceMark Contributors",
+    author_email="tnagar72@gmail.com",
     description="Transform your voice into intelligent markdown edits using Whisper and GPT-4",
     long_description=read_long_description(),
     long_description_content_type="text/markdown",
-    url="https://github.com/your-username/voice-markdown-editor",  # Update with actual repo
+    url="https://github.com/tnagar72/VoiceMark",
     project_urls={
-        "Bug Reports": "https://github.com/your-username/voice-markdown-editor/issues",
-        "Source": "https://github.com/your-username/voice-markdown-editor",
-        "Documentation": "https://github.com/your-username/voice-markdown-editor#readme",
+        "Bug Reports": "https://github.com/tnagar72/VoiceMark/issues",
+        "Source": "https://github.com/tnagar72/VoiceMark",
+        "Documentation": "https://github.com/tnagar72/VoiceMark#readme",
     },
     packages=find_packages(),
     py_modules=[

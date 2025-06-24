@@ -7,10 +7,17 @@
 Edit your Obsidian notes, documentation, and markdown files using natural voice commands. Say "mark the second task as complete" and watch your markdown update automatically.
 
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
-[![OpenAI Powered](https://img.shields.io/badge/OpenAI-GPT--4-green.svg)](https://openai.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](#)
-[![Last Commit](https://img.shields.io/github/last-commit/your-username/voice-markdown-editor.svg)](#)
+[![Last Commit](https://img.shields.io/github/last-commit/tnagar72/VoiceMark.svg)](https://github.com/tnagar72/VoiceMark)
+[![Issues](https://img.shields.io/github/issues/tnagar72/VoiceMark.svg)](https://github.com/tnagar72/VoiceMark/issues)
+[![Stars](https://img.shields.io/github/stars/tnagar72/VoiceMark.svg)](https://github.com/tnagar72/VoiceMark/stargazers)
+[![Forks](https://img.shields.io/github/forks/tnagar72/VoiceMark.svg)](https://github.com/tnagar72/VoiceMark/network)
+
+[![OpenAI Powered](https://img.shields.io/badge/OpenAI-GPT--4-green.svg)](https://openai.com/)
+[![Whisper](https://img.shields.io/badge/Whisper-Local-orange.svg)](https://github.com/openai/whisper)
+[![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Linux%20%7C%20Windows-lightgrey.svg)](#installation)
+[![CLI Tool](https://img.shields.io/badge/interface-CLI-blue.svg)](#usage)
+[![Obsidian](https://img.shields.io/badge/Obsidian-Compatible-purple.svg)](https://obsidian.md/)
 
 <!-- TODO: Add demo gif or screenshot here -->
 
@@ -54,8 +61,8 @@ Perfect for Obsidian users, writers, and knowledge workers who want hands-free m
 
 1. **Clone the repository:**
 ```bash
-git clone https://github.com/your-username/voice-markdown-editor.git
-cd voice-markdown-editor
+git clone https://github.com/tnagar72/VoiceMark.git
+cd VoiceMark
 ```
 
 2. **Install dependencies:**
@@ -230,8 +237,8 @@ We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guid
 
 ### Development Setup
 ```bash
-git clone https://github.com/your-username/voice-markdown-editor.git
-cd voice-markdown-editor
+git clone https://github.com/tnagar72/VoiceMark.git
+cd VoiceMark
 pip install -r requirements.txt
 cp .env.example .env
 # Add your OpenAI API key to .env
@@ -310,6 +317,6 @@ If you use this project in your research or work, please cite:
   title={Voice Markdown Editor},
   author={Voice Markdown Editor Contributors},
   year={2025},
-  url={https://github.com/your-username/voice-markdown-editor}
+  url={https://github.com/tnagar72/VoiceMark}
 }
 ```
