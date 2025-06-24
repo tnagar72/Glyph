@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/image.png" alt="Voice Markdown Editor Logo" width="200"/>
+  <img src="assets/image.png" alt="Voice Markdown Editor Logo" width="400"/>
 </p>
 
 <h1 align="center">Voice Markdown Editor</h1>
