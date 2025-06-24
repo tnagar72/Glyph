@@ -8,11 +8,6 @@ Edit your Obsidian notes, documentation, and markdown files using natural voice 
 
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Last Commit](https://img.shields.io/github/last-commit/tnagar72/VoiceMark.svg)](https://github.com/tnagar72/VoiceMark)
-[![Issues](https://img.shields.io/github/issues/tnagar72/VoiceMark.svg)](https://github.com/tnagar72/VoiceMark/issues)
-[![Stars](https://img.shields.io/github/stars/tnagar72/VoiceMark.svg)](https://github.com/tnagar72/VoiceMark/stargazers)
-[![Forks](https://img.shields.io/github/forks/tnagar72/VoiceMark.svg)](https://github.com/tnagar72/VoiceMark/network)
-
 [![OpenAI Powered](https://img.shields.io/badge/OpenAI-GPT--4-green.svg)](https://openai.com/)
 [![Whisper](https://img.shields.io/badge/Whisper-Local-orange.svg)](https://github.com/openai/whisper)
 [![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Linux%20%7C%20Windows-lightgrey.svg)](#installation)
