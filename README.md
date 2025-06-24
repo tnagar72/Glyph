@@ -1,6 +1,8 @@
-<!-- Logo placeholder - TODO: Add project mascot/logo -->
+<p align="center">
+  <img src="assets/image.png" alt="Voice Markdown Editor Logo" width="200"/>
+</p>
 
-# Voice Markdown Editor
+<h1 align="center">Voice Markdown Editor</h1>
 
 **Transform your voice into intelligent markdown edits using Whisper and GPT-4**
 
