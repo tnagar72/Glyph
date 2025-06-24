@@ -129,11 +129,15 @@ debug.log
 error.log
 performance.log
 
-# Development test files
-test_*.py
-*_test.py
+# Development test files (keep tests/ directory)
 test_*.wav
 test_*.md
 whisper_test.py
 press_to_talk_spinner.py
 key_listener.py
+
+# Build and distribution
+build/
+dist/
+*.egg-info/
+.eggs/

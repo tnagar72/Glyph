@@ -1,0 +1,214 @@
+# Frequently Asked Questions (FAQ)
+
+## 🚀 **Getting Started**
+
+### Q: How do I get started with the voice-controlled markdown editor?
+**A:** Follow these steps:
+1. Install Python 3.8+ and clone the repository
+2. Run `pip install -r requirements.txt`
+3. Copy `.env.example` to `.env` and add your OpenAI API key
+4. Test with `python main.py --transcript-only`
+
+### Q: Where do I get an OpenAI API key?
+**A:** Visit [OpenAI's API Keys page](https://platform.openai.com/api-keys), create an account, and generate a new API key. You'll need billing set up to use GPT-4.
+
+### Q: What's the difference between the recording methods?
+**A:** 
+- **Spacebar method** (default): Hold spacebar to record, release to stop
+- **Enter-to-stop method** (`--enter-stop`): Auto-starts recording, press Enter when finished
+- Use enter-to-stop if you experience terminal interference in iTerm
+
+## 🎤 **Audio & Recording Issues**
+
+### Q: "Audio capture failed" - what's wrong?
+**A:** Common solutions:
+1. **Check microphone permissions**: Go to System Preferences → Security & Privacy → Privacy → Microphone
+2. **Verify audio device**: Run `python -c "import sounddevice as sd; print(sd.query_devices())"` and update `DEVICE_INDEX` in `utils.py`
+3. **Test microphone**: Try `python -c "import sounddevice as sd; sd.rec(1000, samplerate=44100)"`
+4. **Speak longer**: Recordings under 0.5 seconds are rejected
+5. **Check volume**: Ensure you're speaking clearly and microphone isn't muted
+
+### Q: Why does my terminal make bell sounds during recording?
+**A:** This happens in some terminal applications (like iTerm) with the spacebar method. Use the enter-to-stop method instead:
+```bash
+python main.py --enter-stop --file your-file.md
+```
+
+### Q: The transcription is inaccurate. How can I improve it?
+**A:** Try these approaches:
+1. **Use a larger model**: `--whisper-model large` (slower but more accurate)
+2. **Speak clearly** in a quiet environment
+3. **Position microphone** closer to your mouth
+4. **Check audio levels** - too quiet or too loud affects accuracy
+5. **Avoid background noise** and echo
+
+### Q: Which Whisper model should I use?
+**A:** 
+- **tiny/base**: Fast testing, simple commands
+- **small**: Good balance for regular use
+- **medium** (default): Best balance of speed and accuracy
+- **large**: Maximum accuracy for complex commands (slower)
+
+## 🧠 **GPT-4 & AI Processing**
+
+### Q: "OpenAI API errors" - how do I fix this?
+**A:** Check these common issues:
+1. **API key**: Verify it's correctly set in `.env` file
+2. **Billing**: Ensure your OpenAI account has billing enabled
+3. **Rate limits**: Wait a moment and try again if hitting limits
+4. **Network**: Check internet connection
+5. **Test manually**: `python -c "import openai; print('API key loaded')" `
+
+### Q: The AI edits aren't what I expected. How can I improve them?
+**A:** 
+1. **Be specific**: "Mark task 2 as complete" vs "complete something"
+2. **Use context**: Mention section names or specific content
+3. **Try rephrasing**: Different wording can yield better results
+4. **Use dry-run mode**: `--dry-run` to preview without applying
+5. **Check existing content**: AI works better with well-structured markdown
+
+### Q: Can I use different AI models besides GPT-4?
+**A:** Currently, the system is optimized for GPT-4. You can modify `llm.py` to use other OpenAI models (GPT-3.5) or adapt it for other APIs, but GPT-4 provides the best results for markdown editing.
+
+## 📝 **File & Content Issues**
+
+### Q: "No changes suggested by GPT-4" - why?
+**A:** This can happen when:
+1. **Command unclear**: AI couldn't understand what to change
+2. **Already done**: The requested change already exists
+3. **Context missing**: File content doesn't match your command
+4. **Try rewording**: Be more specific about the desired change
+
+### Q: How do I undo changes I don't like?
+**A:** Use the undo feature:
+```bash
+python main.py --undo your-file.md
+```
+This restores from the latest backup created before changes.
+
+### Q: Are my files safe? What about backups?
+**A:** Yes, the system is designed for safety:
+- **Automatic backups** created before every edit
+- **Change preview** shows exactly what will change
+- **User approval** required for all modifications
+- **Undo functionality** available via `--undo`
+- **Dry-run mode** for testing without changes
+
+### Q: Can I use this with Obsidian vaults?
+**A:** Absolutely! The editor preserves:
+- Internal links `[[note]]`
+- Tags `#important`
+- Frontmatter metadata
+- Markdown formatting
+
+Just point it to files in your Obsidian vault directory.
+
+## 🖥️ **Interface & Usage**
+
+### Q: What's the difference between normal and interactive mode?
+**A:**
+- **Normal mode**: Direct command-line usage with flags
+- **Interactive mode** (`--interactive`): Rich menu interface with file browsing, model selection, and options management
+
+### Q: How do I use live transcription mode?
+**A:** 
+```bash
+# Rich UI mode
+python main.py --live
+
+# Simple output for piping
+python main.py --live | tee transcript.log
+```
+Live mode streams voice-to-text in real-time without GPT processing.
+
+### Q: Can I use this in scripts or automation?
+**A:** Yes! Use these patterns:
+```bash
+# Batch processing
+for file in *.md; do python main.py --file "$file" --transcript-only; done
+
+# Piping live transcription
+python main.py --live | your_processing_script.py
+
+# Dry-run for testing
+python main.py --file notes.md --dry-run --verbose
+```
+
+## 🔧 **Technical Issues**
+
+### Q: "ModuleNotFoundError" errors during installation?
+**A:** 
+1. **Check Python version**: Requires Python 3.8+
+2. **Use virtual environment**:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # Windows: venv\Scripts\activate
+   pip install -r requirements.txt
+   ```
+3. **Update pip**: `pip install --upgrade pip`
+
+### Q: Performance is slow. How can I speed it up?
+**A:**
+1. **Use smaller Whisper models**: `--whisper-model tiny` or `base`
+2. **Close other applications** to free up memory
+3. **Use SSD storage** for faster file operations
+4. **Check system resources** during transcription
+
+### Q: Can I run this on Windows or Linux?
+**A:** The code is designed to be cross-platform, but it's primarily tested on macOS. You may need to:
+- Adjust audio device configuration in `utils.py`
+- Install platform-specific audio dependencies
+- Test microphone permissions and access
+
+### Q: How much does it cost to run?
+**A:** Costs depend on OpenAI API usage:
+- **Whisper transcription**: Free (runs locally)
+- **GPT-4 API calls**: ~$0.03 per 1K tokens (varies by usage)
+- **Typical session**: $0.10-0.50 for moderate editing
+
+## 🤝 **Contributing & Development**
+
+### Q: How can I contribute to the project?
+**A:** See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines. Common contributions:
+- Bug reports and feature requests
+- Code improvements and optimizations
+- Documentation and examples
+- Cross-platform testing
+
+### Q: How do I set up a development environment?
+**A:**
+```bash
+git clone https://github.com/your-username/voice-markdown-editor.git
+cd voice-markdown-editor
+python -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+cp .env.example .env
+# Add your OpenAI API key to .env
+```
+
+### Q: Where can I get help or ask questions?
+**A:**
+- **GitHub Issues**: Bug reports and feature requests
+- **GitHub Discussions**: General questions and community help
+- **Documentation**: Check FUNCTIONALITY.md and DEVELOPER_TOOLS.md
+
+## 🎯 **Best Practices**
+
+### Q: What are some effective voice commands?
+**A:** Be specific and contextual:
+- ✅ **Good**: "Mark the third task in the Work section as complete"
+- ❌ **Vague**: "Mark something as done"
+- ✅ **Good**: "Add a new bullet point about the quarterly report under Personal Tasks"
+- ❌ **Vague**: "Add something to the list"
+
+### Q: How should I structure my markdown files for best results?
+**A:**
+- Use clear headings and sections
+- Keep consistent formatting
+- Include context in task descriptions
+- Use meaningful names for sections and items
+
+---
+
+**Still have questions?** Check the [documentation](docs/) or [open an issue](https://github.com/your-username/voice-markdown-editor/issues) on GitHub!

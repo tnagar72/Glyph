@@ -10,6 +10,8 @@ from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.text import Text
 from rich import box
 
+__version__ = "1.0.0"
+
 from recording import run_voice_capture, run_simple_record, run_enter_stop_capture
 from transcription import transcribe_audio, save_transcript
 from md_file import read_markdown_file, write_markdown_file, validate_markdown_path
@@ -342,6 +344,7 @@ def run_normal_mode(args):
 def main():
     """Main entry point for the voice-controlled markdown editor."""
     parser = argparse.ArgumentParser(description="🎙️ Voice-controlled Markdown Editor")
+    parser.add_argument("--version", action="version", version=f"Voice Markdown Editor {__version__}")
     parser.add_argument("--file", "-f", type=str, help="Path to markdown file to edit")
     parser.add_argument("--dry-run", "-d", action="store_true", help="Preview changes without applying")
     parser.add_argument("--transcript-only", "-t", action="store_true", help="Only transcribe, skip GPT processing")

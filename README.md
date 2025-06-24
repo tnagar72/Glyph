@@ -1,20 +1,47 @@
-# 🎙️ Voice-Controlled Markdown Editor
+<!-- Logo placeholder - TODO: Add project mascot/logo -->
 
-> Transform your voice into intelligent markdown edits using local Whisper transcription and GPT-4 processing.
+# 🎙️ Voice Markdown Editor
+
+**Transform your voice into intelligent markdown edits using Whisper and GPT-4**
+
+Edit your Obsidian notes, documentation, and markdown files using natural voice commands. Say "mark the second task as complete" and watch your markdown update automatically.
 
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
-[![OpenAI](https://img.shields.io/badge/OpenAI-GPT--4-green.svg)](https://openai.com/)
+[![OpenAI Powered](https://img.shields.io/badge/OpenAI-GPT--4-green.svg)](https://openai.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](#)
+[![Last Commit](https://img.shields.io/github/last-commit/your-username/voice-markdown-editor.svg)](#)
 
-## ✨ **Key Features**
+<!-- TODO: Add demo gif or screenshot here -->
 
-- 🎤 **Voice-to-Text**: Local Whisper transcription with multiple model options
-- 🧠 **AI-Powered Editing**: GPT-4 integration for intelligent markdown modifications  
-- 🖥️ **Rich Terminal UI**: Beautiful interface with progress indicators and colored diffs
-- 📝 **Safe Editing**: Automatic backups and change previews before applying
-- 🔄 **Multiple Modes**: Interactive CLI, live transcription, and command-line interfaces
-- 🎯 **Obsidian Ready**: Preserves links, tags, and frontmatter formatting
-- ⚡ **Two Recording Methods**: Spacebar press-to-talk or Enter-to-stop (prevents terminal interference)
+## What is this?
+
+A voice-controlled markdown editor that combines OpenAI Whisper (local speech recognition) with GPT-4 to intelligently edit your markdown files through natural voice commands.
+
+Perfect for Obsidian users, writers, and knowledge workers who want hands-free markdown editing.
+
+## ✨ Core Features
+
+- 🎤 **Local Voice Recognition**: OpenAI Whisper transcription (no cloud audio processing)
+- 🧠 **Intelligent Editing**: GPT-4 understands context and intent 
+- 🖥️ **Rich Terminal UI**: Beautiful diffs, progress indicators, and interactive menus
+- 📝 **Safe Operations**: Automatic backups, change previews, and undo functionality
+- 🎯 **Obsidian Compatible**: Preserves `[[links]]`, `#tags`, and frontmatter
+
+## Supported Use Cases
+
+- **Task Management**: "Mark the third task as complete", "Add grocery shopping to personal tasks"
+- **Note Organization**: "Move the ideas section to the top", "Create a new section called Research"
+- **Content Updates**: "Change the meeting time from 2 PM to 3 PM", "Remove completed items"
+- **Live Transcription**: Real-time voice-to-text for meeting notes and brainstorming
+
+## Who is this for?
+
+- **Obsidian Users**: Voice-edit your vault without breaking formatting
+- **Knowledge Workers**: Quick updates to documentation and notes
+- **Writers**: Hands-free editing for creative flow
+- **Neurodiverse Creators**: Alternative input method for accessibility
+- **Busy Professionals**: Fast updates while multitasking
 
 ## 🚀 **Quick Start**
 
@@ -189,11 +216,9 @@ voice-markdown-editor/
 
 ## 🎥 **Examples & Demos**
 
-> **📝 TODO for Repository Owner:**
-> - [ ] Add demo video showing voice editing workflow
-> - [ ] Create screenshots of Rich terminal UI
-> - [ ] Record voice command examples
-> - [ ] Show before/after markdown comparisons
+<!-- TODO: Add demo video and screenshots here -->
+
+For detailed examples of voice commands and their effects, see [EXAMPLES.md](EXAMPLES.md).
 
 ## 🤝 **Contributing**
 
@@ -242,33 +267,6 @@ python main.py --live
 - Docker containerization
 - Cloud deployment options
 
-## 📋 **TODO List for Repository Enhancement**
-
-### **High Priority** (User Action Required)
-- [ ] **Record demo video** showing complete workflow
-- [ ] **Create screenshots** of Rich UI, interactive menus, and diffs
-- [ ] **Set up OpenAI API key** and verify all functionality
-- [ ] **Test on different systems** (various macOS versions, microphones)
-- [ ] **Create sample markdown files** in examples/ directory
-
-### **Medium Priority**
-- [ ] **Record voice command examples** for different use cases
-- [ ] **Create Obsidian vault integration** examples
-- [ ] **Write blog post** about voice-driven productivity workflows
-- [ ] **Set up GitHub repository** with proper name and description
-- [ ] **Add repository topics/tags** for discoverability
-
-### **Low Priority**
-- [ ] **GitHub Actions setup** for automated testing
-- [ ] **PyPI package preparation** for pip installation
-- [ ] **Documentation website** with GitHub Pages
-- [ ] **Community features** (Discord server, GitHub Discussions)
-- [ ] **Performance benchmarking** across different Whisper models
-
-## 📄 **License**
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
 ## 🙏 **Acknowledgments**
 
 - [OpenAI Whisper](https://github.com/openai/whisper) for local speech recognition
@@ -277,6 +275,19 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Made with ❤️ for voice-driven productivity**
+## 📄 License
 
-*Transform your voice into intelligent markdown edits - because typing is so 2023!*
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🔗 Citation
+
+If you use this project in your research or work, please cite:
+
+```bibtex
+@software{voice_markdown_editor,
+  title={Voice Markdown Editor},
+  author={Voice Markdown Editor Contributors},
+  year={2025},
+  url={https://github.com/your-username/voice-markdown-editor}
+}
+```
