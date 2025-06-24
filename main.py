@@ -2,17 +2,14 @@
 
 import argparse
 import sounddevice as sd
-import os
-from pathlib import Path
 from rich.console import Console
 from rich.panel import Panel
-from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.text import Text
 from rich import box
 
 __version__ = "1.0.0"
 
-from recording import run_voice_capture, run_simple_record, run_enter_stop_capture
+from recording import run_voice_capture, run_enter_stop_capture
 from transcription import transcribe_audio, save_transcript
 from md_file import read_markdown_file, write_markdown_file, validate_markdown_path
 from llm import call_gpt_api

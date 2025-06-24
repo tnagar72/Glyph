@@ -3,6 +3,7 @@ import shutil
 from pathlib import Path
 from datetime import datetime
 from utils import verbose_print
+from backup_manager import get_backup_manager
 
 def read_markdown_file(file_path: str) -> str:
     """
@@ -57,12 +58,12 @@ def write_markdown_file(file_path: str, content: str, create_backup: bool = True
     path = Path(file_path)
     backup_path = None
     
-    # Create backup if file exists and backup is requested
+    # Create centralized backup if file exists and backup is requested
     if path.exists() and create_backup:
-        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        backup_path = path.parent / f"{path.stem}_backup_{timestamp}{path.suffix}"
-        shutil.copy2(path, backup_path)
-        verbose_print(f"Backup created: {backup_path}")
+        backup_manager = get_backup_manager()
+        backup_path = backup_manager.create_backup(str(path), "auto")
+        if backup_path:
+            verbose_print(f"Centralized backup created: {backup_path}")
     
     # Ensure parent directory exists
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -76,7 +77,7 @@ def write_markdown_file(file_path: str, content: str, create_backup: bool = True
             f.write(normalized_content)
         
         verbose_print(f"Successfully wrote file: {file_path}")
-        return str(backup_path) if backup_path else None
+        return backup_path if backup_path else None
         
     except Exception as e:
         raise Exception(f"Error writing file {file_path}: {e}")

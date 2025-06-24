@@ -62,7 +62,8 @@ obsidian_voice/
 # Project-specific ignores
 logs/
 transcripts/
-backups/
+backups/*
+!backups/.gitkeep
 *_backup_*
 *.log
 

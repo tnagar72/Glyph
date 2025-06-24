@@ -149,10 +149,12 @@ class TestImports:
         """Test importing data handling modules."""
         import session_logger
         import undo_manager
+        import backup_manager
         import md_file
         
         # Check key classes exist
         assert hasattr(undo_manager, 'UndoManager')
+        assert hasattr(backup_manager, 'BackupManager')
 
 
 class TestCLI:

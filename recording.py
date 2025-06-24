@@ -7,18 +7,23 @@ import sys
 from utils import SAMPLE_RATE, CHANNELS, DEVICE_INDEX, SPINNER_FRAMES, verbose_print
 
 class AudioRecorder:
+    """Handles audio recording with validation and stream management."""
+    
     def __init__(self):
+        """Initialize audio recorder with empty state."""
         self.frames = []
         self.stream = None
         self.recording = False
         
     def audio_callback(self, indata, frames_count, time_info, status):
+        """Callback function for audio input stream."""
         if status:
             print(f"⚠️ {status}", flush=True)
         if self.recording:
             self.frames.append(indata.copy())
     
     def start_recording(self, message="🎙️ Recording... Hold SPACEBAR to speak."):
+        """Start audio recording stream."""
         self.frames = []
         self.recording = True
         self.stream = sd.InputStream(
@@ -31,6 +36,7 @@ class AudioRecorder:
         print(message)
     
     def stop_recording(self):
+        """Stop recording and return validated audio data."""
         self.recording = False
         if self.stream:
             self.stream.stop()
@@ -71,6 +77,7 @@ class AudioRecorder:
         return audio_data
 
 def run_voice_capture():
+    """Spacebar press-to-talk voice capture with spinner."""
     print("⌨️ Hold SPACEBAR to record, release to stop...\n")
     
     recorder = AudioRecorder()
@@ -79,6 +86,7 @@ def run_voice_capture():
     spinner_thread = None
     
     def show_spinner():
+        """Display animated recording status."""
         while recording_flag['value']:
             elapsed = int(time.time() - start_time)
             spinner = next(SPINNER_FRAMES)
@@ -87,6 +95,7 @@ def run_voice_capture():
             time.sleep(0.1)
     
     def on_press_with_spinner(key):
+        """Handle spacebar press to start recording."""
         nonlocal spinner_thread, start_time
         if key == keyboard.Key.space and not recording_flag['value']:
             recording_flag['value'] = True
@@ -96,6 +105,7 @@ def run_voice_capture():
             spinner_thread.start()
 
     def on_release_with_spinner(key):
+        """Handle spacebar release to stop recording."""
         nonlocal spinner_thread
         if key == keyboard.Key.space and recording_flag['value']:
             recording_flag['value'] = False
@@ -144,6 +154,7 @@ def run_enter_stop_capture():
     return recorder.stop_recording()
 
 def run_simple_record():
+    """Simple 5-second audio recording without interaction."""
     print("🎤 Starting 5-second recording...")
     duration = 5
     audio = sd.rec(int(SAMPLE_RATE * duration), samplerate=SAMPLE_RATE, channels=CHANNELS)

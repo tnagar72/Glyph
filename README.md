@@ -25,7 +25,7 @@ Perfect for Obsidian users, writers, and knowledge workers who want hands-free m
 - 🎤 **Local Voice Recognition**: OpenAI Whisper transcription (no cloud audio processing)
 - 🧠 **Intelligent Editing**: GPT-4 understands context and intent 
 - 🖥️ **Rich Terminal UI**: Beautiful diffs, progress indicators, and interactive menus
-- 📝 **Safe Operations**: Automatic backups, change previews, and undo functionality
+- 📝 **Safe Operations**: Centralized backup system with automatic cleanup and undo functionality
 - 🎯 **Obsidian Compatible**: Preserves `[[links]]`, `#tags`, and frontmatter
 
 ## Supported Use Cases
@@ -208,10 +208,14 @@ voice-markdown-editor/
 ├── live_transcription.py  # Real-time streaming
 ├── diff.py                # Change visualization
 ├── session_logger.py      # Audit logging
-├── undo_manager.py        # Backup management
+├── undo_manager.py        # Legacy backup compatibility
+├── backup_manager.py      # Centralized backup system
+├── cleanup_backups.py     # Backup retention management
+├── backups/               # Centralized backup storage
 ├── prompts/               # GPT-4 prompt templates
-├── docs/                  # Extended documentation
-└── examples/              # Sample markdown files
+├── examples/              # Sample markdown files
+├── tests/                 # Test suite
+└── docs/                  # Extended documentation
 ```
 
 ## 🎥 **Examples & Demos**
@@ -243,6 +247,24 @@ python main.py --interactive
 
 # Test live transcription
 python main.py --live
+
+# Test backup system
+make backup-stats
+```
+
+### Backup Management
+```bash
+# View backup statistics
+python cleanup_backups.py --stats
+
+# List old backup files
+python cleanup_backups.py --list --days 30
+
+# Clean up backups older than 30 days
+python cleanup_backups.py --days 30
+
+# Dry run (see what would be deleted)
+python cleanup_backups.py --dry-run --days 30
 ```
 
 ## 📚 **Documentation**

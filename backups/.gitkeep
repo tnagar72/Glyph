@@ -1,0 +1,2 @@
+# This file ensures the backups directory is tracked by git
+# Backup files themselves are excluded by .gitignore but the directory structure is preserved

@@ -18,6 +18,13 @@ help:
 	@echo "  format      Format code with black and isort"
 	@echo "  clean       Clean build artifacts"
 	@echo ""
+	@echo "Backup Management:"
+	@echo "  backup-stats       Show backup statistics"
+	@echo "  backup-list        List old backup files"
+	@echo "  backup-cleanup     Clean up old backups (interactive)"
+	@echo "  backup-cleanup-dry Dry run cleanup (show what would be deleted)"
+	@echo "  backup-cleanup-force Force cleanup without confirmation"
+	@echo ""
 	@echo "Distribution:"
 	@echo "  build       Build package for distribution"
 	@echo "  upload      Upload to PyPI (requires credentials)"
@@ -87,6 +94,22 @@ docs:
 	@echo "DEVELOPER_TOOLS.md - Advanced usage"
 	@echo "FAQ.md - Common questions"
 	@echo "EXAMPLES.md - Usage examples"
+
+# Backup management targets
+backup-stats:
+	python cleanup_backups.py --stats
+
+backup-list:
+	python cleanup_backups.py --list
+
+backup-cleanup:
+	python cleanup_backups.py
+
+backup-cleanup-dry:
+	python cleanup_backups.py --dry-run
+
+backup-cleanup-force:
+	python cleanup_backups.py --force
 
 # Quick development commands
 dev-setup: setup

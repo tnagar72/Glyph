@@ -88,11 +88,24 @@ This restores from the latest backup created before changes.
 
 ### Q: Are my files safe? What about backups?
 **A:** Yes, the system is designed for safety:
-- **Automatic backups** created before every edit
+- **Centralized backups** stored in `backups/` directory with organized structure
+- **Automatic backups** created before every edit with timestamps
 - **Change preview** shows exactly what will change
 - **User approval** required for all modifications
 - **Undo functionality** available via `--undo`
 - **Dry-run mode** for testing without changes
+- **Backup cleanup** tools to manage storage space
+
+### Q: Where are backup files stored?
+**A:** Backups are stored in a centralized `backups/` directory structure:
+```
+backups/
+├── parent_directory/
+│   └── filename/
+│       ├── filename_auto_20250624_120000.md
+│       └── filename_pre_restore_20250624_130000.md
+```
+This prevents filename conflicts and organizes backups by file location.
 
 ### Q: Can I use this with Obsidian vaults?
 **A:** Absolutely! The editor preserves:
@@ -102,6 +115,57 @@ This restores from the latest backup created before changes.
 - Markdown formatting
 
 Just point it to files in your Obsidian vault directory.
+
+### Q: How do I manage backup files and storage space?
+**A:** Use the built-in backup management tools:
+
+**View backup statistics:**
+```bash
+python cleanup_backups.py --stats
+# or
+make backup-stats
+```
+
+**List old backup files:**
+```bash
+python cleanup_backups.py --list --days 30
+```
+
+**Clean up old backups:**
+```bash
+# Interactive cleanup (recommended)
+python cleanup_backups.py --days 30
+
+# Dry run to see what would be deleted
+python cleanup_backups.py --dry-run --days 30
+
+# Force cleanup without confirmation
+python cleanup_backups.py --force --days 30
+```
+
+**Automated cleanup:**
+Set up a cron job to automatically clean backups older than 30 days:
+```bash
+# Add to crontab (runs daily at 3 AM)
+0 3 * * * cd /path/to/voice-markdown-editor && python cleanup_backups.py --force --days 30
+```
+
+### Q: Can I restore from a specific backup?
+**A:** Yes, you can choose from multiple backups:
+```bash
+# List available backups for a file
+python main.py --undo your-file.md
+# This shows all available backups and lets you choose
+
+# Or use the backup manager directly
+python -c "
+from backup_manager import get_backup_manager
+bm = get_backup_manager()
+backups = bm.list_backups('your-file.md')
+for i, backup in enumerate(backups):
+    print(f'{i}: {backup[\"filename\"]} ({backup[\"created_str\"]})')
+"
+```
 
 ## 🖥️ **Interface & Usage**
 

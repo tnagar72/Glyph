@@ -40,6 +40,8 @@ setup(
         "diff",
         "session_logger",
         "undo_manager",
+        "backup_manager",
+        "cleanup_backups",
         "md_file",
         "prompts",
         "cleaning",
@@ -80,6 +82,7 @@ setup(
         "console_scripts": [
             "voice-md=main:main",
             "voice-markdown=main:main",
+            "voice-md-cleanup=cleanup_backups:main",
         ],
     },
     include_package_data=True,
