@@ -128,6 +128,9 @@ python main.py --transcript-only
 
 # Undo recent changes
 python main.py --undo notes.md
+
+# View all current configurations
+python main.py --show-config
 ```
 
 ## 🎯 **Voice Command Examples**
@@ -148,6 +151,13 @@ python main.py --undo notes.md
 - *"Reorder the sections alphabetically"*
 
 ## ⚙️ **Configuration**
+
+### View Current Settings
+```bash
+# Display all current configurations and defaults
+python main.py --show-config
+```
+This shows your current Whisper model, audio device, system information, and all configurable options in a comprehensive overview.
 
 ### Whisper Models
 | Model | Size | Speed | Accuracy | Use Case |

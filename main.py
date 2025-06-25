@@ -19,7 +19,7 @@ from session_logger import get_session_logger, end_session
 from undo_manager import UndoManager
 from utils import DEVICE_INDEX, WHISPER_MODEL, SAMPLE_RATE
 from audio_config import setup_audio_device, get_audio_device
-from model_config import setup_default_model, get_default_model, show_current_model_config
+from model_config import setup_default_model, get_default_model, show_current_model_config, show_all_configurations
 
 console = Console()
 
@@ -398,6 +398,7 @@ def main():
     parser.add_argument("--enter-stop", "-e", action="store_true", help="Use Enter key to stop recording (prevents terminal interference)")
     parser.add_argument("--setup-audio", action="store_true", help="Run audio device configuration wizard")
     parser.add_argument("--setup-model", action="store_true", help="Run Whisper model configuration wizard")
+    parser.add_argument("--show-config", action="store_true", help="Display all current configurations and defaults")
     
     args = parser.parse_args()
     
@@ -408,6 +409,10 @@ def main():
     
     if args.setup_model:
         handle_model_setup()
+        return
+    
+    if args.show_config:
+        show_all_configurations()
         return
         
     if args.undo:

@@ -223,3 +223,112 @@ def show_current_model_config() -> None:
             border_style="yellow"
         )
         console.print(panel)
+
+def show_all_configurations() -> None:
+    """Display all current Glyph configurations and defaults."""
+    from pathlib import Path
+    import platform
+    import sounddevice as sd
+    from utils import WHISPER_MODEL, SAMPLE_RATE, CHANNELS, DURATION_LIMIT, DEVICE_INDEX
+    from audio_config import audio_manager
+    
+    console.print("\n[bold cyan]🔧 Glyph Configuration Overview[/bold cyan]\n")
+    
+    # === Model Configuration ===
+    manager = ModelManager()
+    current_model = manager.load_model_config()
+    
+    model_panel = Panel(
+        f"[bold white]🤖 Whisper Model Configuration[/bold white]\n\n"
+        f"📁 Config Directory: [cyan]{manager.config_dir}[/cyan]\n"
+        f"📄 Config File: [cyan]{manager.config_file}[/cyan]\n"
+        f"✅ Config Exists: [green]{'Yes' if manager.config_file.exists() else 'No'}[/green]\n\n"
+        f"🎯 Current Model: [bold green]{current_model or 'Not configured'}[/bold green]\n"
+        f"🔄 Fallback Model: [yellow]{WHISPER_MODEL}[/yellow]\n"
+        f"📊 Available Models: [dim]{', '.join(manager.available_models.keys())}[/dim]",
+        title="Model Settings",
+        border_style="blue"
+    )
+    console.print(model_panel)
+    
+    # === Audio Configuration ===
+    audio_config = audio_manager.load_saved_config()
+    
+    try:
+        devices = sd.query_devices()
+        current_audio_device = audio_config['device_id'] if audio_config else None
+        current_device_name = audio_config['device_name'] if audio_config else "Not configured"
+        device_exists = (current_audio_device is not None and 
+                        current_audio_device < len(devices) and 
+                        devices[current_audio_device]['max_input_channels'] >= 1)
+    except Exception:
+        device_exists = False
+        current_device_name = "Error detecting devices"
+    
+    audio_panel = Panel(
+        f"[bold white]🎙️ Audio Device Configuration[/bold white]\n\n"
+        f"📁 Config Directory: [cyan]{audio_manager.config_dir}[/cyan]\n"
+        f"📄 Config File: [cyan]{audio_manager.config_file}[/cyan]\n"
+        f"✅ Config Exists: [green]{'Yes' if audio_manager.config_file.exists() else 'No'}[/green]\n\n"
+        f"🎤 Current Device: [bold green]{current_device_name}[/bold green]\n"
+        f"🔢 Device ID: [yellow]{current_audio_device if current_audio_device is not None else 'Not set'}[/yellow]\n"
+        f"✅ Device Available: [green]{'Yes' if device_exists else 'No'}[/green]\n"
+        f"🔄 Fallback Device: [yellow]{DEVICE_INDEX}[/yellow]",
+        title="Audio Settings",
+        border_style="magenta"
+    )
+    console.print(audio_panel)
+    
+    # === Audio Parameters ===
+    audio_params_panel = Panel(
+        f"[bold white]🔊 Audio Parameters[/bold white]\n\n"
+        f"📊 Sample Rate: [cyan]{SAMPLE_RATE} Hz[/cyan]\n"
+        f"🎵 Channels: [cyan]{CHANNELS}[/cyan]\n"
+        f"⏱️ Duration Limit: [cyan]{DURATION_LIMIT} seconds[/cyan]\n"
+        f"💾 Format: [cyan]16-bit PCM[/cyan]",
+        title="Audio Processing",
+        border_style="green"
+    )
+    console.print(audio_params_panel)
+    
+    # === System Information ===
+    system_panel = Panel(
+        f"[bold white]💻 System Information[/bold white]\n\n"
+        f"🖥️ Platform: [cyan]{platform.system()}[/cyan]\n"
+        f"📦 Platform Release: [cyan]{platform.release()}[/cyan]\n"
+        f"🏠 Home Directory: [cyan]{Path.home()}[/cyan]\n"
+        f"📂 Working Directory: [cyan]{Path.cwd()}[/cyan]\n"
+        f"🔧 Glyph Config Dir: [cyan]{manager.config_dir}[/cyan]",
+        title="System Info",
+        border_style="yellow"
+    )
+    console.print(system_panel)
+    
+    # === Application Settings ===
+    from utils import VERBOSE_MODE
+    
+    app_panel = Panel(
+        f"[bold white]⚙️ Application Settings[/bold white]\n\n"
+        f"🔍 Verbose Mode: [cyan]{'Enabled' if VERBOSE_MODE else 'Disabled'}[/cyan]\n"
+        f"🎨 Rich Console Width: [cyan]120 chars[/cyan]\n"
+        f"📝 Logging: [cyan]Session-based[/cyan]\n"
+        f"💾 Backup System: [cyan]Enabled[/cyan]",
+        title="App Configuration",
+        border_style="cyan"
+    )
+    console.print(app_panel)
+    
+    # === Configuration Commands ===
+    commands_panel = Panel(
+        f"[bold white]🛠️ Configuration Commands[/bold white]\n\n"
+        f"🤖 Setup Model: [cyan]glyph --setup-model[/cyan]\n"
+        f"🎙️ Setup Audio: [cyan]glyph --setup-audio[/cyan]\n"
+        f"🔍 Show Config: [cyan]glyph --show-config[/cyan]\n"
+        f"📋 Interactive Mode: [cyan]glyph --interactive[/cyan]\n"
+        f"🔄 Live Mode: [cyan]glyph --live[/cyan]",
+        title="Configuration Options",
+        border_style="white"
+    )
+    console.print(commands_panel)
+    
+    console.print("\n[dim]💡 Tip: Use --setup-model or --setup-audio to configure specific components[/dim]\n")
