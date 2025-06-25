@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Basic tests for voice markdown editor functionality.
+Basic tests for Glyph functionality.
 """
 
 import pytest
@@ -166,7 +166,7 @@ class TestCLI:
         result = subprocess.run(['python', 'main.py', '--help'], 
                               capture_output=True, text=True)
         assert result.returncode == 0
-        assert "Voice-controlled Markdown Editor" in result.stdout
+        assert "Glyph" in result.stdout
     
     def test_version_output(self):
         """Test that version can be displayed."""
@@ -174,7 +174,7 @@ class TestCLI:
         result = subprocess.run(['python', 'main.py', '--version'], 
                               capture_output=True, text=True)
         assert result.returncode == 0
-        assert "Voice Markdown Editor" in result.stdout
+        assert "Glyph" in result.stdout
 
 
 if __name__ == "__main__":

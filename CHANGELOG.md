@@ -26,7 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.0.0] - 2025-06-24
 
 ### Added
-- Initial release of voice-controlled markdown editor
+- Initial release of Glyph
 - OpenAI Whisper integration for local speech recognition
 - GPT-4 powered intelligent markdown editing
 - Rich terminal UI with colored diffs and progress indicators

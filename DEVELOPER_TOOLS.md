@@ -2,7 +2,7 @@
 
 ## 🎯 **Overview**
 
-Advanced tools for developers and power users to enhance the voice-controlled markdown editing experience.
+Advanced tools for developers and power users to enhance the Glyph experience.
 
 ---
 
@@ -47,6 +47,11 @@ python main.py --interactive
 └───────┴─────────┴─────────┴─────────┴────────────────┴─────────┘
 ```
 
+**Set Default Model:**
+- Configure your preferred model with the wizard
+- All future commands will use this model unless overridden
+- Access via main menu or `glyph --setup-model`
+
 #### **3. Options Toggle**
 - **Dry Run**: Preview changes without applying
 - **Verbose**: Show detailed debug output  
@@ -90,6 +95,16 @@ python main.py --live | tee transcript.log
 - No Rich UI interference
 - Perfect for logging or further processing
 
+### **Clipboard Mode**
+```bash
+python main.py --live --clipboard
+```
+**Features:**
+- Copies all transcripts to clipboard instead of saving files
+- Raw transcript text only (no timestamps)
+- Perfect for quick text input into other applications
+- Works with both rich UI and simple modes
+
 ### **Standalone Live Transcription**
 ```bash
 python live_transcription.py [OPTIONS]
@@ -98,6 +113,7 @@ python live_transcription.py [OPTIONS]
 **Options:**
 - `--model {tiny,base,small,medium,large}` - Whisper model selection
 - `--simple` - Simple output mode (good for piping)
+- `--clipboard` - Copy transcripts to clipboard instead of saving
 - `--chunk CHUNK` - Audio chunk duration in seconds (default: 3.0)
 - `--verbose` - Enable verbose debug output
 
@@ -154,9 +170,11 @@ python live_transcription.py --chunk 5.0
 
 ### **Model Selection for Live Mode**
 - **tiny**: Ultra-fast for real-time demos
-- **base**: Good balance for development
+- **base**: Good balance for development  
 - **medium**: Production quality (default)
 - **large**: Maximum accuracy for data collection
+
+Configure your preferred default with `glyph --setup-model`
 
 ### **Environment Variables**
 ```bash
@@ -200,6 +218,9 @@ python main.py --live | python voice_controller.py
 # Live meeting notes
 python main.py --live --whisper-model large | \
   python format_meeting_notes.py > meeting_$(date +%Y%m%d).md
+
+# Quick clipboard transcription
+python main.py --live --clipboard --whisper-model large
 ```
 
 ---
@@ -270,4 +291,4 @@ ssh remote-server "python main.py --live" | \
 3. **Handle Ctrl+C gracefully** in downstream processes
 4. **Monitor stderr** for status messages
 
-**The developer tools provide a complete toolkit for voice-controlled markdown editing development and production use!**
+**The developer tools provide a complete toolkit for Glyph development and production use!**

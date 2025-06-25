@@ -2,7 +2,7 @@
 
 ## 🚀 **Getting Started**
 
-### Q: How do I get started with the voice-controlled markdown editor?
+### Q: How do I get started with Glyph?
 **A:** Follow these steps:
 1. Install Python 3.8+ and clone the repository
 2. Run `pip install -r requirements.txt`
@@ -147,7 +147,7 @@ python cleanup_backups.py --force --days 30
 Set up a cron job to automatically clean backups older than 30 days:
 ```bash
 # Add to crontab (runs daily at 3 AM)
-0 3 * * * cd /path/to/voice-markdown-editor && python cleanup_backups.py --force --days 30
+0 3 * * * cd /path/to/glyph && python cleanup_backups.py --force --days 30
 ```
 
 ### Q: Can I restore from a specific backup?
@@ -242,8 +242,8 @@ python main.py --file notes.md --dry-run --verbose
 ### Q: How do I set up a development environment?
 **A:**
 ```bash
-git clone https://github.com/tnagar72/VoiceMark.git
-cd VoiceMark
+git clone https://github.com/tnagar72/Glyph.git
+cd Glyph
 python -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
@@ -275,4 +275,4 @@ cp .env.example .env
 
 ---
 
-**Still have questions?** Check the [documentation](docs/) or [open an issue](https://github.com/tnagar72/VoiceMark/issues) on GitHub!
+**Still have questions?** Check the [documentation](docs/) or [open an issue](https://github.com/tnagar72/Glyph/issues) on GitHub!

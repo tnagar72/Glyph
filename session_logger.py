@@ -6,7 +6,7 @@ from typing import Optional, Dict, Any
 from utils import verbose_print
 
 class SessionLogger:
-    """Comprehensive session logging for voice markdown editing."""
+    """Comprehensive session logging for Glyph."""
     
     def __init__(self):
         self.session_id = datetime.now().strftime('%Y%m%d_%H%M%S')

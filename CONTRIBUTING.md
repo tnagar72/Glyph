@@ -18,7 +18,7 @@ This project combines local speech recognition (OpenAI Whisper) with GPT-4 to cr
 
 1. **Fork and clone the repository:**
 ```bash
-git clone https://github.com/tnagar72/VoiceMark.git
+git clone https://github.com/tnagar72/Glyph.git
 cd VoiceMark
 ```
 

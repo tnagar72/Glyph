@@ -1,0 +1,98 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "glyph"
+version = "1.0.0"
+description = "Transform your voice into intelligent markdown edits using Whisper and GPT-4"
+readme = "README.md"
+license = {text = "MIT"}
+authors = [
+    {name = "Glyph Contributors", email = "tnagar@andrew.cmu.edu"}
+]
+maintainers = [
+    {name = "Glyph Contributors", email = "tnagar@andrew.cmu.edu"}
+]
+keywords = ["voice", "markdown", "editing", "whisper", "gpt4", "transcription", "cli", "obsidian", "glyph"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Intended Audience :: End Users/Desktop",
+    "Topic :: Text Processing :: Markup",
+    "Topic :: Multimedia :: Sound/Audio :: Speech",
+    "Topic :: Text Editors",
+    "Topic :: Office/Business",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Operating System :: OS Independent",
+    "Environment :: Console",
+    "Natural Language :: English",
+]
+requires-python = ">=3.8"
+dependencies = [
+    "openai>=1.0.0",
+    "openai-whisper>=20240930",
+    "numpy>=1.21.0,<2.0",
+    "sounddevice>=0.4.0",
+    "rich>=13.0.0",
+    "pynput>=1.7.0",
+    "pyperclip>=1.8.0",
+    "soundfile>=0.10.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "black>=22.0.0",
+    "isort>=5.0.0",
+    "flake8>=4.0.0",
+    "pytest-cov>=3.0.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/tnagar72/Glyph"
+Documentation = "https://github.com/tnagar72/Glyph#readme"
+Repository = "https://github.com/tnagar72/Glyph"
+"Bug Reports" = "https://github.com/tnagar72/Glyph/issues"
+
+[project.scripts]
+glyph = "main:main"
+glyph-cleanup = "cleanup_backups:main"
+
+[tool.setuptools]
+py-modules = [
+    "main",
+    "recording", 
+    "transcription",
+    "llm",
+    "interactive_cli",
+    "live_transcription",
+    "diff",
+    "session_logger",
+    "undo_manager",
+    "backup_manager",
+    "cleanup_backups",
+    "md_file",
+    "prompts",
+    "cleaning",
+    "utils",
+    "audio_config",
+    "model_config"
+]
+
+[tool.setuptools.package-data]
+"*" = ["prompts/*.txt", "examples/*.md", "*.md", "*.txt"]
+
+[tool.black]
+line-length = 88
+target-version = ['py38']
+
+[tool.isort]
+profile = "black"
+line_length = 88

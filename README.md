@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="assets/image.png" alt="Voice Markdown Editor Logo" width="400"/>
+  <img src="assets/image.png" alt="Glyph Logo" width="400"/>
 </p>
 
-<h1 align="center">Voice Markdown Editor</h1>
+<h1 align="center">Glyph</h1>
 
 **Transform your voice into intelligent markdown edits using Whisper and GPT-4**
 
@@ -38,6 +38,7 @@ Perfect for Obsidian users, writers, and knowledge workers who want hands-free m
 - **Note Organization**: "Move the ideas section to the top", "Create a new section called Research"
 - **Content Updates**: "Change the meeting time from 2 PM to 3 PM", "Remove completed items"
 - **Live Transcription**: Real-time voice-to-text for meeting notes and brainstorming
+- **Clipboard Integration**: Direct speech-to-clipboard for quick text input
 
 ## Who is this for?
 
@@ -58,8 +59,8 @@ Perfect for Obsidian users, writers, and knowledge workers who want hands-free m
 
 1. **Clone the repository:**
 ```bash
-git clone https://github.com/tnagar72/VoiceMark.git
-cd VoiceMark
+git clone https://github.com/tnagar72/Glyph.git
+cd Glyph
 ```
 
 2. **Install dependencies:**
@@ -106,12 +107,18 @@ python main.py --live
 
 # Simple output for piping
 python main.py --live | tee transcript.log
+
+# Copy transcripts to clipboard instead of saving files
+python main.py --live --clipboard
 ```
 
 ### Advanced Options
 ```bash
-# Use different Whisper models
+# Use different Whisper models (overrides default)
 python main.py --whisper-model large --file notes.md
+
+# Configure default model for all commands
+python main.py --setup-model
 
 # Enable verbose debugging
 python main.py --verbose --file notes.md
@@ -151,10 +158,26 @@ python main.py --undo notes.md
 | **medium** | 769MB | Slow | High | **Default** |
 | large | 1550MB | Slowest | Highest | Complex commands |
 
+Set your preferred default model with `python main.py --setup-model`
+
 ### Audio Device Setup
-The system is configured for MacBook Pro Microphone (device index 2). To change:
-1. List available devices: `python -c "import sounddevice as sd; print(sd.query_devices())"`
-2. Update `DEVICE_INDEX` in `utils.py`
+```bash
+# Run the interactive audio setup wizard
+python main.py --setup-audio
+
+# Or configure manually:
+# 1. List available devices: python -c "import sounddevice as sd; print(sd.query_devices())"
+# 2. Update DEVICE_INDEX in utils.py
+```
+
+### Model Configuration
+```bash
+# Run the interactive model setup wizard
+python main.py --setup-model
+
+# Choose your preferred default Whisper model for all transcriptions
+# Options: tiny, base, small, medium, large
+```
 
 ### Environment Variables
 ```bash
@@ -174,6 +197,7 @@ export OPENAI_API_KEY=your_key    # OpenAI API key
 
 ### Integration Ready
 - **Piping Support**: `python main.py --live | your_processor.py`
+- **Clipboard Integration**: `python main.py --live --clipboard` for direct text input
 - **Batch Processing**: Loop through multiple files with interactive mode
 - **Remote Usage**: SSH-compatible for remote voice control
 
@@ -203,7 +227,7 @@ export OPENAI_API_KEY=your_key    # OpenAI API key
 ## 📁 **Project Structure**
 
 ```
-voice-markdown-editor/
+glyph/
 ├── main.py                 # Main entry point
 ├── recording.py            # Audio capture system
 ├── transcription.py        # Whisper integration
@@ -234,8 +258,8 @@ We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guid
 
 ### Development Setup
 ```bash
-git clone https://github.com/tnagar72/VoiceMark.git
-cd VoiceMark
+git clone https://github.com/tnagar72/Glyph.git
+cd Glyph
 pip install -r requirements.txt
 cp .env.example .env
 # Add your OpenAI API key to .env
@@ -310,10 +334,10 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 If you use this project in your research or work, please cite:
 
 ```bibtex
-@software{voice_markdown_editor,
-  title={Voice Markdown Editor},
-  author={Voice Markdown Editor Contributors},
+@software{glyph,
+  title={Glyph},
+  author={Glyph Contributors},
   year={2025},
-  url={https://github.com/tnagar72/VoiceMark}
+  url={https://github.com/tnagar72/Glyph}
 }
 ```

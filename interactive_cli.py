@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 """
-Interactive CLI mode for the voice-controlled markdown editor.
+Interactive CLI mode for Glyph.
 Provides rich menus for file selection, model configuration, and options.
 """
 
@@ -38,7 +38,7 @@ class InteractiveCLI:
         """Display the application banner."""
         banner_text = Text()
         banner_text.append("🎙️ ", style="bold yellow")
-        banner_text.append("Voice-Controlled Markdown Editor", style="bold white")
+        banner_text.append("Glyph", style="bold white")
         banner_text.append(" - Interactive Mode", style="bold cyan")
         
         banner = Panel(

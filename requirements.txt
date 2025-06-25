@@ -1,7 +1,7 @@
 # Core AI and ML dependencies
 openai>=1.0.0
 openai-whisper>=20240930
-numpy>=1.21.0
+numpy>=1.21.0,<2.0
 
 # Audio processing
 sounddevice>=0.4.0
@@ -11,6 +11,9 @@ rich>=13.0.0
 
 # Keyboard input handling
 pynput>=1.7.0
+
+# Clipboard functionality
+pyperclip>=1.8.0
 
 # Optional: For better audio codec support
 # soundfile>=0.10.0

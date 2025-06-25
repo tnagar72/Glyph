@@ -18,8 +18,30 @@ from diff import show_diff, get_user_approval, show_change_summary, count_change
 from session_logger import get_session_logger, end_session
 from undo_manager import UndoManager
 from utils import DEVICE_INDEX, WHISPER_MODEL, SAMPLE_RATE
+from audio_config import setup_audio_device, get_audio_device
+from model_config import setup_default_model, get_default_model, show_current_model_config
 
 console = Console()
+
+def handle_audio_setup():
+    """Handle audio device configuration wizard."""
+    device = setup_audio_device()
+    if device is not None:
+        console.print(f"\n[green]🎉 Audio setup complete! Device {device} is ready for use.[/green]")
+        console.print("[dim]You can now use Glyph normally. Run 'glyph --setup-audio' again to change devices.[/dim]")
+    else:
+        console.print("\n[red]❌ Audio setup cancelled or failed.[/red]")
+        console.print("[dim]You may need to check your microphone permissions or try again.[/dim]")
+
+def handle_model_setup():
+    """Handle Whisper model configuration wizard."""
+    model = setup_default_model()
+    if model is not None:
+        console.print(f"\n[green]🎉 Model setup complete! '{model}' is now your default model.[/green]")
+        console.print("[dim]You can now use Glyph normally. Run 'glyph --setup-model' again to change models.[/dim]")
+    else:
+        console.print("\n[red]❌ Model setup cancelled or failed.[/red]")
+        console.print("[dim]The system will continue using 'medium' as the default model.[/dim]")
 
 def handle_undo_operation(file_path: str, verbose: bool = False):
     """Handle undo operation for a specific file."""
@@ -103,14 +125,21 @@ def handle_live_mode(args):
     
     from live_transcription import run_live_transcription
     
-    model = args.whisper_model if args.whisper_model else WHISPER_MODEL
+    # Use specified model, configured default, or fallback to WHISPER_MODEL
+    if args.whisper_model:
+        model = args.whisper_model
+    else:
+        model = get_default_model()
     
     # Check if we're in a pipeline (stdout is not a terminal)
     import sys
     simple_mode = not sys.stdout.isatty()
     
+    # Check for clipboard mode
+    clipboard_mode = getattr(args, 'clipboard', False)
+    
     try:
-        run_live_transcription(model=model, simple=simple_mode)
+        run_live_transcription(model=model, simple=simple_mode, clipboard_mode=clipboard_mode)
     except KeyboardInterrupt:
         console.print("\n👋 [yellow]Live transcription stopped[/yellow]")
 
@@ -159,15 +188,18 @@ def run_normal_mode(args):
         from utils import set_verbose
         set_verbose(True)
     
-    # Override default Whisper model if specified
+    # Override default Whisper model if specified, otherwise use configured default
     if args.whisper_model:
         import utils
         utils.WHISPER_MODEL = args.whisper_model
+    else:
+        import utils
+        utils.WHISPER_MODEL = get_default_model()
     
     # Beautiful header
     title_text = Text()
     title_text.append("🎙️ ", style="bold yellow")
-    title_text.append("Voice-controlled Markdown Editor", style="bold white")
+    title_text.append("Glyph", style="bold white")
     
     header = Panel(
         title_text,
@@ -177,8 +209,19 @@ def run_normal_mode(args):
     )
     console.print(header)
     
-    # Set up audio device
-    sd.default.device = [DEVICE_INDEX, None]  # [input, output]
+    # Set up audio device with smart detection
+    audio_device = get_audio_device()
+    if audio_device is not None:
+        sd.default.device = [audio_device, None]  # [input, output]
+        if args.verbose:
+            from utils import set_verbose, verbose_print
+            set_verbose(True)
+            devices = sd.query_devices()
+            verbose_print(f"Using audio device {audio_device}: {devices[audio_device]['name']}")
+    else:
+        console.print("[red]❌ No suitable audio device found![/red]")
+        console.print("[yellow]💡 Run 'glyph --setup-audio' to configure your microphone.[/yellow]")
+        return
     
     # Recording Phase
     if args.enter_stop:
@@ -339,9 +382,9 @@ def run_normal_mode(args):
         end_session(False)
 
 def main():
-    """Main entry point for the voice-controlled markdown editor."""
-    parser = argparse.ArgumentParser(description="🎙️ Voice-controlled Markdown Editor")
-    parser.add_argument("--version", action="version", version=f"Voice Markdown Editor {__version__}")
+    """Main entry point for Glyph."""
+    parser = argparse.ArgumentParser(description="🎙️ Glyph - Voice-controlled Markdown Editor")
+    parser.add_argument("--version", action="version", version=f"Glyph {__version__}")
     parser.add_argument("--file", "-f", type=str, help="Path to markdown file to edit")
     parser.add_argument("--dry-run", "-d", action="store_true", help="Preview changes without applying")
     parser.add_argument("--transcript-only", "-t", action="store_true", help="Only transcribe, skip GPT processing")
@@ -351,11 +394,22 @@ def main():
     parser.add_argument("--undo", "-u", type=str, help="Undo changes to specified file (restore from latest backup)")
     parser.add_argument("--interactive", "-i", action="store_true", help="Start interactive CLI mode")
     parser.add_argument("--live", "-l", action="store_true", help="Live transcription mode (real-time streaming)")
+    parser.add_argument("--clipboard", action="store_true", help="Copy live transcripts to clipboard (use with --live)")
     parser.add_argument("--enter-stop", "-e", action="store_true", help="Use Enter key to stop recording (prevents terminal interference)")
+    parser.add_argument("--setup-audio", action="store_true", help="Run audio device configuration wizard")
+    parser.add_argument("--setup-model", action="store_true", help="Run Whisper model configuration wizard")
     
     args = parser.parse_args()
     
     # Handle special modes first
+    if args.setup_audio:
+        handle_audio_setup()
+        return
+    
+    if args.setup_model:
+        handle_model_setup()
+        return
+        
     if args.undo:
         handle_undo_operation(args.undo, args.verbose)
         return

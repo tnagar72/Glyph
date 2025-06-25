@@ -1,7 +1,7 @@
 # Voice Editor Project
 
 ## Overview
-Building a voice-controlled markdown editor that integrates Whisper transcription with GPT-4 for intelligent editing.
+Building Glyph - a voice-controlled markdown editor that integrates Whisper transcription with GPT-4 for intelligent editing.
 
 ## Features
 - [x] Local Whisper transcription

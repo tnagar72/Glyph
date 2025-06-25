@@ -5,6 +5,7 @@ import threading
 import time
 import sys
 from utils import SAMPLE_RATE, CHANNELS, DEVICE_INDEX, SPINNER_FRAMES, verbose_print
+from audio_config import get_audio_device
 
 class AudioRecorder:
     """Handles audio recording with validation and stream management."""
@@ -26,14 +27,40 @@ class AudioRecorder:
         """Start audio recording stream."""
         self.frames = []
         self.recording = True
-        self.stream = sd.InputStream(
-            device=DEVICE_INDEX, 
-            callback=self.audio_callback, 
-            channels=CHANNELS, 
-            samplerate=SAMPLE_RATE
-        )
-        self.stream.start()
-        print(message)
+        
+        # Get the configured audio device
+        device_index = get_audio_device()
+        if device_index is None:
+            print("❌ No audio device configured. Run 'glyph --setup-audio' first.")
+            raise RuntimeError("No audio device available")
+        
+        verbose_print(f"Using audio device: {device_index}")
+        verbose_print(f"Channels: {CHANNELS}, Sample rate: {SAMPLE_RATE}")
+        
+        try:
+            self.stream = sd.InputStream(
+                device=device_index, 
+                callback=self.audio_callback, 
+                channels=CHANNELS, 
+                samplerate=SAMPLE_RATE
+            )
+            self.stream.start()
+            print(message)
+        except sd.PortAudioError as e:
+            print(f"❌ Audio Error: {e}")
+            print("🔧 Trying to use default input device...")
+            try:
+                self.stream = sd.InputStream(
+                    callback=self.audio_callback, 
+                    channels=1, 
+                    samplerate=SAMPLE_RATE
+                )
+                self.stream.start()
+                print(message)
+            except sd.PortAudioError as e2:
+                print(f"❌ Failed to start audio recording: {e2}")
+                print("💡 Please check your microphone permissions and try again.")
+                raise
     
     def stop_recording(self):
         """Stop recording and return validated audio data."""

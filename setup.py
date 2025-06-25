@@ -16,18 +16,18 @@ def read_requirements():
         return [line.strip() for line in f if line.strip() and not line.startswith("#")]
 
 setup(
-    name="voicemark",
+    name="glyph",
     version="1.0.0",
-    author="VoiceMark Contributors",
-    author_email="tnagar72@gmail.com",
+    author="Glyph Contributors",
+    author_email="tnagar@andrew.cmu.edu",
     description="Transform your voice into intelligent markdown edits using Whisper and GPT-4",
     long_description=read_long_description(),
     long_description_content_type="text/markdown",
-    url="https://github.com/tnagar72/VoiceMark",
+    url="https://github.com/tnagar72/Glyph",
     project_urls={
-        "Bug Reports": "https://github.com/tnagar72/VoiceMark/issues",
-        "Source": "https://github.com/tnagar72/VoiceMark",
-        "Documentation": "https://github.com/tnagar72/VoiceMark#readme",
+        "Bug Reports": "https://github.com/tnagar72/Glyph/issues",
+        "Source": "https://github.com/tnagar72/Glyph",
+        "Documentation": "https://github.com/tnagar72/Glyph#readme",
     },
     packages=find_packages(),
     py_modules=[
@@ -45,7 +45,9 @@ setup(
         "md_file",
         "prompts",
         "cleaning",
-        "utils"
+        "utils",
+        "audio_config",
+        "model_config"
     ],
     classifiers=[
         "Development Status :: 5 - Production/Stable",
@@ -66,7 +68,7 @@ setup(
         "Environment :: Console",
         "Natural Language :: English",
     ],
-    keywords="voice, markdown, editing, whisper, gpt4, transcription, cli, obsidian",
+    keywords="voice, markdown, editing, whisper, gpt4, transcription, cli, obsidian, glyph",
     python_requires=">=3.8",
     install_requires=read_requirements(),
     extras_require={
@@ -80,9 +82,8 @@ setup(
     },
     entry_points={
         "console_scripts": [
-            "voice-md=main:main",
-            "voice-markdown=main:main",
-            "voice-md-cleanup=cleanup_backups:main",
+            "glyph=main:main",
+            "glyph-cleanup=cleanup_backups:main",
         ],
     },
     include_package_data=True,

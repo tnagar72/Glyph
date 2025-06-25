@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Centralized backup management for voice markdown editor.
+Centralized backup management for Glyph.
 Handles creating, organizing, and cleaning up backup files.
 """
 

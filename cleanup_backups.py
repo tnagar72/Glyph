@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Backup cleanup script for voice markdown editor.
+Backup cleanup script for Glyph.
 Removes old backup files based on retention policies.
 """
 

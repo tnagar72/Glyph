@@ -1,4 +1,4 @@
-# Voice-Controlled Markdown Editor - Complete Functionality
+# Glyph - Complete Functionality
 
 ## 🎯 **Core Purpose**
 Transform voice commands into intelligent markdown file edits using local Whisper transcription and GPT-4 processing.
@@ -14,7 +14,7 @@ Voice Input → Audio Recording → Whisper Transcription → GPT-4 Processing �
 
 ### **Module Structure**
 ```
-📦 Voice Markdown Editor
+📦 Glyph
 ├── 🎤 Audio Layer (recording.py, utils.py)
 ├── 🤖 Transcription Layer (transcription.py)  
 ├── 🧠 AI Processing Layer (llm.py, prompts.py)
@@ -96,6 +96,9 @@ python main.py --transcript-only
 ```bash
 python main.py --whisper-model large --file notes.md
 # Use specific Whisper model for better accuracy
+
+python main.py --setup-model
+# Configure default model for all future commands
 ```
 
 ### **Verbose Debugging**
@@ -129,6 +132,9 @@ python main.py --live
 
 # For piping/debugging
 python main.py --live | tee transcript.log
+
+# Copy transcripts to clipboard
+python main.py --live --clipboard
 ```
 
 ---
@@ -191,11 +197,13 @@ python main.py --live | tee transcript.log
 | **medium** | 769MB | Slow | High | **Default** |
 | large | 1550MB | Slowest | Highest | Complex commands |
 
+Configure your preferred default model with `python main.py --setup-model`
+
 ### **Audio Settings**
 ```python
 SAMPLE_RATE = 44100      # Audio quality
 CHANNELS = 1             # Mono recording
-DEVICE_INDEX = 2         # Input device
+DEVICE_INDEX = 2         # Input device (configurable with --setup-audio)
 ```
 
 ### **GPT Settings**
