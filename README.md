@@ -13,6 +13,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![OpenAI Powered](https://img.shields.io/badge/OpenAI-GPT--4-green.svg)](https://openai.com/)
 [![Whisper](https://img.shields.io/badge/Whisper-Local%20%2B%20API-orange.svg)](https://github.com/openai/whisper)
+[![Built for Obsidian](https://img.shields.io/badge/Built%20for-Obsidian-483699.svg)](https://obsidian.md/)
 
 ---
 
