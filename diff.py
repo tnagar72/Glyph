@@ -6,6 +6,10 @@ from rich.panel import Panel
 from rich.text import Text
 from rich.table import Table
 from rich import box
+from ui_helpers import (
+    GLYPH_PRIMARY, GLYPH_SECONDARY, GLYPH_ACCENT, GLYPH_HIGHLIGHT,
+    GLYPH_SUCCESS, GLYPH_ERROR, GLYPH_WARNING, GLYPH_MUTED
+)
 
 console = Console()
 
@@ -34,17 +38,17 @@ def show_diff(original: str, modified: str, filename: str = "markdown file") -> 
     ))
     
     if not diff:
-        console.print("\n✅ [green]No changes detected[/green]")
+        console.print(f"\n✅ [{GLYPH_SUCCESS}]No changes detected[/{GLYPH_SUCCESS}]")
         return []
     
-    # Create rich diff visualization
+    # Create rich diff visualization with Glyph styling
     _render_rich_diff(diff, filename)
     
     return diff
 
 def _render_rich_diff(diff_lines: List[str], filename: str):
     """
-    Render a beautiful GitHub-style diff using Rich.
+    Render a beautiful diff using Glyph styling.
     
     Args:
         diff_lines: List of diff lines from difflib
@@ -53,20 +57,23 @@ def _render_rich_diff(diff_lines: List[str], filename: str):
     
     console.print()  # Add spacing
     
-    # Header panel
+    # Header panel with Glyph branding
     title = Text()
-    title.append("📋 Changes Preview: ", style="bold white")
-    title.append(filename, style="bold cyan")
+    title.append("◈ ", style=f"bold {GLYPH_ACCENT}")
+    title.append("Changes Preview: ", style="bold white")
+    title.append(filename, style=f"bold {GLYPH_HIGHLIGHT}")
+    title.append(" ◈", style=f"bold {GLYPH_ACCENT}")
     
-    # Create table for side-by-side view
+    # Create table with Glyph styling
     table = Table(
         show_header=True,
-        box=box.ROUNDED,
+        box=box.HEAVY,
         title=title,
-        title_style="bold white"
+        title_style=f"bold {GLYPH_PRIMARY}",
+        border_style=GLYPH_SECONDARY
     )
     
-    table.add_column("", style="dim", width=4, justify="right")  # Line numbers
+    table.add_column("", style=GLYPH_MUTED, width=4, justify="right")  # Line numbers
     table.add_column("Diff", style="", min_width=60)
     
     line_num = 0
@@ -77,59 +84,59 @@ def _render_rich_diff(diff_lines: List[str], filename: str):
             # File headers - style them nicely
             if line.startswith('---'):
                 styled_line = Text()
-                styled_line.append("--- ", style="bold red")
-                styled_line.append(line[4:].strip(), style="red")
+                styled_line.append("--- ", style=f"bold {GLYPH_ERROR}")
+                styled_line.append(line[4:].strip(), style=GLYPH_ERROR)
             else:
                 styled_line = Text()
-                styled_line.append("+++ ", style="bold green")
-                styled_line.append(line[4:].strip(), style="green")
+                styled_line.append("+++ ", style=f"bold {GLYPH_SUCCESS}")
+                styled_line.append(line[4:].strip(), style=GLYPH_SUCCESS)
             
             table.add_row("", styled_line)
             
         elif line.startswith('@@'):
             # Hunk header
             in_hunk = True
-            styled_line = Text(line.strip(), style="bold magenta on grey23")
+            styled_line = Text(line.strip(), style=f"bold {GLYPH_PRIMARY} on grey23")
             table.add_row("", styled_line)
             
         elif in_hunk and line:
             line_num += 1
             
             if line.startswith('+'):
-                # Addition
+                # Addition with Glyph success color
                 styled_line = Text()
-                styled_line.append("+ ", style="bold green")
+                styled_line.append("+ ", style=f"bold {GLYPH_SUCCESS}")
                 
                 # Syntax highlight the markdown content
                 content = line[1:].rstrip('\n')
                 if content.strip():
                     try:
                         syntax = Syntax(content, "markdown", theme="github-dark", line_numbers=False, word_wrap=True)
-                        styled_line.append(content, style="green")
+                        styled_line.append(content, style=GLYPH_SUCCESS)
                     except:
-                        styled_line.append(content, style="green")
+                        styled_line.append(content, style=GLYPH_SUCCESS)
                 
                 table.add_row(str(line_num), styled_line)
                 
             elif line.startswith('-'):
-                # Deletion
+                # Deletion with Glyph error color
                 styled_line = Text()
-                styled_line.append("- ", style="bold red")
+                styled_line.append("- ", style=f"bold {GLYPH_ERROR}")
                 
                 content = line[1:].rstrip('\n')
                 if content.strip():
-                    styled_line.append(content, style="red")
+                    styled_line.append(content, style=GLYPH_ERROR)
                 
                 table.add_row(str(line_num), styled_line)
                 
             elif line.startswith(' '):
-                # Context line
+                # Context line with muted color
                 styled_line = Text()
-                styled_line.append("  ", style="dim")
+                styled_line.append("  ", style=GLYPH_MUTED)
                 
                 content = line[1:].rstrip('\n')
                 if content.strip():
-                    styled_line.append(content, style="dim white")
+                    styled_line.append(content, style=GLYPH_MUTED)
                 
                 table.add_row(str(line_num), styled_line)
     
@@ -178,24 +185,24 @@ def get_user_approval(changes_detected: bool = True) -> bool:
     
     while True:
         try:
-            # Rich prompt
-            console.print("✅ [bold green]Accept changes?[/bold green] [dim]\\[y/N][/dim]: ", end="")
+            # Rich prompt with Glyph styling
+            console.print(f"✅ [bold {GLYPH_SUCCESS}]Accept changes?[/bold {GLYPH_SUCCESS}] [{GLYPH_MUTED}]\\[y/N][/{GLYPH_MUTED}]: ", end="")
             response = input().strip().lower()
             
             if response in ['y', 'yes']:
-                console.print("🎉 [bold green]Changes accepted![/bold green]")
+                console.print(f"🎉 [bold {GLYPH_SUCCESS}]Changes accepted![/bold {GLYPH_SUCCESS}]")
                 return True
             elif response in ['n', 'no', '']:  # Default to 'no' if empty
-                console.print("❌ [yellow]Changes rejected[/yellow]")
+                console.print(f"❌ [{GLYPH_WARNING}]Changes rejected[/{GLYPH_WARNING}]")
                 return False
             else:
-                console.print("[red]Please enter 'y' for yes or 'n' for no[/red]")
+                console.print(f"[{GLYPH_ERROR}]Please enter 'y' for yes or 'n' for no[/{GLYPH_ERROR}]")
                 
         except KeyboardInterrupt:
-            console.print("\n❌ [red]Operation cancelled by user[/red]")
+            console.print(f"\n❌ [{GLYPH_ERROR}]Operation cancelled by user[/{GLYPH_ERROR}]")
             return False
         except EOFError:
-            console.print("\n❌ [red]Input error[/red]")
+            console.print(f"\n❌ [{GLYPH_ERROR}]Input error[/{GLYPH_ERROR}]")
             return False
 
 def count_changes(diff_lines: List[str]) -> Tuple[int, int]:
@@ -227,11 +234,12 @@ def show_change_summary(diff_lines: List[str]) -> None:
     
     additions, deletions = count_changes(diff_lines)
     
-    # Create a summary table
+    # Create a summary table with Glyph styling
     summary_table = Table(
         show_header=False,
-        box=box.SIMPLE,
-        padding=(0, 1)
+        box=box.HEAVY,
+        padding=(0, 1),
+        border_style=GLYPH_SECONDARY
     )
     
     summary_table.add_column("Icon", style="bold", width=3)
@@ -239,7 +247,7 @@ def show_change_summary(diff_lines: List[str]) -> None:
     summary_table.add_column("Count", style="bold", width=8)
     
     summary_table.add_row("📊", "Summary", "")
-    summary_table.add_row("✅", "[green]Additions[/green]", f"[green]+{additions}[/green]")
-    summary_table.add_row("❌", "[red]Deletions[/red]", f"[red]-{deletions}[/red]")
+    summary_table.add_row("✅", f"[{GLYPH_SUCCESS}]Additions[/{GLYPH_SUCCESS}]", f"[{GLYPH_SUCCESS}]+{additions}[/{GLYPH_SUCCESS}]")
+    summary_table.add_row("❌", f"[{GLYPH_ERROR}]Deletions[/{GLYPH_ERROR}]", f"[{GLYPH_ERROR}]-{deletions}[/{GLYPH_ERROR}]")
     
     console.print(summary_table)

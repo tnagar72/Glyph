@@ -1,4 +1,6 @@
-# Whisper Model Selection Guide
+# Whisper Model Selection Guide (Local Transcription)
+
+> **Note**: This guide applies to local Whisper transcription. If you're using OpenAI API transcription, the model is automatically optimized and this configuration doesn't apply. See `glyph --setup-transcription` to choose between methods.
 
 ## Available Models
 

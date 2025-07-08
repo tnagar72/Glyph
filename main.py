@@ -17,9 +17,17 @@ from cleaning import extract_markdown_from_response
 from diff import show_diff, get_user_approval, show_change_summary, count_changes
 from session_logger import get_session_logger, end_session
 from undo_manager import UndoManager
-from utils import DEVICE_INDEX, WHISPER_MODEL, SAMPLE_RATE
+from utils import DEVICE_INDEX, WHISPER_MODEL, SAMPLE_RATE, open_in_obsidian_if_available
 from audio_config import setup_audio_device, get_audio_device
 from model_config import setup_default_model, get_default_model, show_current_model_config, show_all_configurations
+from transcription_config import setup_transcription_method, show_current_transcription_config
+from transcription import test_all_transcription_methods
+from ui_helpers import (
+    show_welcome_banner, show_ascii_logo, show_recording_indicator, 
+    show_thinking_indicator, show_success_message, show_error_message,
+    show_warning_message, show_config_overview, GLYPH_PRIMARY, GLYPH_SUCCESS, 
+    GLYPH_ERROR, GLYPH_WARNING, GLYPH_VOICE, GLYPH_HIGHLIGHT
+)
 
 console = Console()
 
@@ -27,21 +35,100 @@ def handle_audio_setup():
     """Handle audio device configuration wizard."""
     device = setup_audio_device()
     if device is not None:
-        console.print(f"\n[green]🎉 Audio setup complete! Device {device} is ready for use.[/green]")
-        console.print("[dim]You can now use Glyph normally. Run 'glyph --setup-audio' again to change devices.[/dim]")
+        show_success_message(
+            f"🎉 Audio setup complete! Device {device} is ready for use.",
+            "You can now use Glyph normally. Run 'glyph --setup-audio' again to change devices."
+        )
     else:
-        console.print("\n[red]❌ Audio setup cancelled or failed.[/red]")
-        console.print("[dim]You may need to check your microphone permissions or try again.[/dim]")
+        show_error_message(
+            "❌ Audio setup cancelled or failed.",
+            "You may need to check your microphone permissions or try again."
+        )
 
 def handle_model_setup():
     """Handle Whisper model configuration wizard."""
     model = setup_default_model()
     if model is not None:
-        console.print(f"\n[green]🎉 Model setup complete! '{model}' is now your default model.[/green]")
-        console.print("[dim]You can now use Glyph normally. Run 'glyph --setup-model' again to change models.[/dim]")
+        show_success_message(
+            f"🎉 Model setup complete! '{model}' is now your default model.",
+            "You can now use Glyph normally. Run 'glyph --setup-model' again to change models."
+        )
     else:
-        console.print("\n[red]❌ Model setup cancelled or failed.[/red]")
-        console.print("[dim]The system will continue using 'medium' as the default model.[/dim]")
+        show_error_message(
+            "❌ Model setup cancelled or failed.",
+            "The system will continue using 'medium' as the default model."
+        )
+
+def handle_transcription_setup():
+    """Handle transcription method configuration wizard."""
+    method = setup_transcription_method()
+    if method is not None:
+        show_success_message(
+            f"🎉 Transcription setup complete! Using '{method}' method.",
+            "You can now use Glyph normally. Run 'glyph --setup-transcription' again to change methods."
+        )
+    else:
+        show_error_message(
+            "❌ Transcription setup cancelled or failed.",
+            "The system will continue using the current configuration."
+        )
+
+def handle_transcription_test():
+    """Handle transcription method testing."""
+    console.print(f"\n🧪 [bold {GLYPH_PRIMARY}]Testing All Transcription Methods[/bold {GLYPH_PRIMARY}]")
+    test_all_transcription_methods()
+
+def handle_agent_setup():
+    """Handle agent configuration wizard."""
+    from agent_config import setup_agent_configuration
+    vault_path = setup_agent_configuration()
+    if vault_path:
+        show_success_message(
+            f"🎉 Agent setup complete! Vault configured: {vault_path}",
+            "You can now use 'glyph --agent-mode' to start voice-controlled Obsidian management."
+        )
+    else:
+        show_error_message(
+            "❌ Agent setup incomplete.",
+            "You need to configure a vault path to use agent mode."
+        )
+
+def handle_agent_mode(args):
+    """Handle agent mode session."""
+    if args.verbose:
+        from utils import set_verbose
+        set_verbose(True)
+    
+    try:
+        from agent_cli import run_agent_mode
+        
+        # Check if agent is configured
+        from agent_config import get_agent_config
+        config = get_agent_config()
+        if not config.is_vault_configured():
+            show_error_message(
+                "❌ Agent not configured. Run 'glyph --setup-agent' first.",
+                "Agent mode requires an Obsidian vault to be configured."
+            )
+            return
+        
+        # Show current agent configuration
+        if args.verbose:
+            console.print(f"\n🤖 [bold {GLYPH_PRIMARY}]Agent Configuration:[/bold {GLYPH_PRIMARY}]")
+            config.show_current_config()
+        
+        # Start agent mode
+        transcription_method = getattr(args, 'transcription_method', None)
+        text_only = getattr(args, 'text_only', False)
+        # Default to enter-stop mode for agent mode (more reliable for interactive use)
+        # Only use spacebar mode if user explicitly requests it with a hypothetical --spacebar flag
+        enter_stop = True  # Default to enter-stop for agent mode
+        run_agent_mode(enter_stop, transcription_method, text_only)
+        
+    except KeyboardInterrupt:
+        console.print(f"\n👋 [yellow]Agent mode interrupted[/yellow]")
+    except Exception as e:
+        show_error_message(f"❌ Agent mode error: {e}")
 
 def handle_undo_operation(file_path: str, verbose: bool = False):
     """Handle undo operation for a specific file."""
@@ -125,11 +212,8 @@ def handle_live_mode(args):
     
     from live_transcription import run_live_transcription
     
-    # Use specified model, configured default, or fallback to WHISPER_MODEL
-    if args.whisper_model:
-        model = args.whisper_model
-    else:
-        model = get_default_model()
+    # Use specified transcription method or default from config
+    transcription_method = getattr(args, 'transcription_method', None)
     
     # Check if we're in a pipeline (stdout is not a terminal)
     import sys
@@ -138,8 +222,18 @@ def handle_live_mode(args):
     # Check for clipboard mode
     clipboard_mode = getattr(args, 'clipboard', False)
     
+    # Show current transcription method
+    if transcription_method:
+        console.print(f"✅ Using specified transcription method: {transcription_method}")
+    else:
+        from transcription_config import get_transcription_config
+        config = get_transcription_config()
+        current_method = config.get_transcription_method()
+        method_display = "Local Whisper" if current_method == "local" else "OpenAI API"
+        console.print(f"✅ Using configured transcription method: {method_display}")
+    
     try:
-        run_live_transcription(model=model, simple=simple_mode, clipboard_mode=clipboard_mode)
+        run_live_transcription(transcription_method=transcription_method, simple=simple_mode, clipboard_mode=clipboard_mode)
     except KeyboardInterrupt:
         console.print("\n👋 [yellow]Live transcription stopped[/yellow]")
 
@@ -163,6 +257,12 @@ def handle_interactive_mode(args):
         handle_live_mode(args)
         return
     
+    if settings.get('mode') == 'agent':
+        # Switch to agent mode
+        args.agent_mode = True
+        handle_agent_mode(args)
+        return
+    
     # Apply settings and run normal mode
     if settings.get('verbose'):
         from utils import set_verbose
@@ -173,6 +273,7 @@ def handle_interactive_mode(args):
     args.whisper_model = settings['whisper_model']
     args.dry_run = settings['dry_run']
     args.transcript_only = settings['transcript_only']
+    args.no_obsidian = settings['no_obsidian']
     
     # Continue with normal mode using updated args
     run_normal_mode(args)
@@ -196,18 +297,8 @@ def run_normal_mode(args):
         import utils
         utils.WHISPER_MODEL = get_default_model()
     
-    # Beautiful header
-    title_text = Text()
-    title_text.append("🎙️ ", style="bold yellow")
-    title_text.append("Glyph", style="bold white")
-    
-    header = Panel(
-        title_text,
-        style="blue",
-        box=box.DOUBLE,
-        padding=(1, 2)
-    )
-    console.print(header)
+    # Show welcome banner with Glyph branding
+    show_welcome_banner()
     
     # Set up audio device with smart detection
     audio_device = get_audio_device()
@@ -219,30 +310,22 @@ def run_normal_mode(args):
             devices = sd.query_devices()
             verbose_print(f"Using audio device {audio_device}: {devices[audio_device]['name']}")
     else:
-        console.print("[red]❌ No suitable audio device found![/red]")
-        console.print("[yellow]💡 Run 'glyph --setup-audio' to configure your microphone.[/yellow]")
+        show_error_message(
+            "❌ No suitable audio device found!",
+            "💡 Run 'glyph --setup-audio' to configure your microphone."
+        )
         return
     
-    # Recording Phase
-    if args.enter_stop:
-        instruction_text = "🎤 [bold yellow]Recording Phase[/bold yellow]\nRecording will start automatically. Press ENTER when finished speaking..."
-    else:
-        instruction_text = "🎤 [bold yellow]Recording Phase[/bold yellow]\nHold SPACEBAR to record your voice command..."
-    
-    recording_panel = Panel(
-        instruction_text,
-        style="yellow",
-        box=box.ROUNDED
-    )
-    console.print(recording_panel)
-    
+    # Recording Phase with Glyph styling
     import time
     audio_start_time = time.time()
     
     # Choose recording method based on args
     if args.enter_stop:
+        show_recording_indicator("enter", args.dry_run)
         audio = run_enter_stop_capture()
     else:
+        show_recording_indicator("spacebar", args.dry_run)
         audio = run_voice_capture()
     
     audio_duration = time.time() - audio_start_time
@@ -267,26 +350,33 @@ def run_normal_mode(args):
     
     logger.log_audio_capture(len(audio) / SAMPLE_RATE, True)
     
-    # Transcription with progress indicator
+    # Transcription with progress indicator (with optional method override)
     transcription_start = time.time()
-    with console.status("[bold green]🤖 Transcribing audio...", spinner="dots"):
-        transcript = transcribe_audio(audio)
+    transcription_method = getattr(args, 'transcription_method', None)
+    
+    with console.status(f"[bold {GLYPH_VOICE}]🤖 Transcribing audio...", spinner="dots"):
+        transcript = transcribe_audio(audio, method=transcription_method)
     transcription_time = time.time() - transcription_start
     
     if not transcript:
         logger.log_transcription("", WHISPER_MODEL, False, transcription_time, "Transcription returned empty result")
-        console.print("⚠️ [red]Transcription failed.[/red]")
+        show_error_message("⚠️ Transcription failed.")
         end_session(False)
         return
     
     logger.log_transcription(transcript, WHISPER_MODEL, True, transcription_time)
     
-    # Show transcript in a nice panel
+    # Show transcript in a nice panel with Glyph styling
+    transcript_text = Text()
+    transcript_text.append("📄 Transcript:\n", style="bold white")
+    transcript_text.append(transcript, style=f"italic {GLYPH_HIGHLIGHT}")
+    
     transcript_panel = Panel(
-        f"[bold white]📄 Transcript:[/bold white]\n[italic cyan]{transcript}[/italic cyan]",
-        style="green",
-        box=box.ROUNDED,
-        title="Voice Command"
+        transcript_text,
+        style=GLYPH_SUCCESS,
+        box=box.HEAVY,
+        title="◈ Voice Command ◈",
+        title_align="center"
     )
     console.print(transcript_panel)
     
@@ -297,7 +387,7 @@ def run_normal_mode(args):
     
     # If transcript-only mode, exit here
     if args.transcript_only:
-        console.print("✅ [green]Transcript-only mode - done![/green]")
+        show_success_message("✅ Transcript-only mode - done!")
         return
     
     # Get target markdown file
@@ -318,7 +408,7 @@ def run_normal_mode(args):
         
         # GPT processing with nice progress
         gpt_start = time.time()
-        with console.status("[bold magenta]🧠 Processing with GPT-4...", spinner="bouncingBall"):
+        with console.status(f"[bold {GLYPH_PRIMARY}]🧠 Processing with GPT-4...", spinner="bouncingBall"):
             modified_content = call_gpt_api(original_content, transcript, validated_path.name)
             cleaned_content = extract_markdown_from_response(modified_content)
         gpt_time = time.time() - gpt_start
@@ -330,7 +420,7 @@ def run_normal_mode(args):
         diff_lines = show_diff(original_content, cleaned_content, validated_path.name)
         
         if not diff_lines:
-            console.print("✅ [green]No changes suggested by GPT-4[/green]")
+            show_success_message("✅ No changes suggested by GPT-4")
             logger.log_user_decision("no_changes", False, validated_path.name)
             end_session(True)
             return
@@ -343,42 +433,36 @@ def run_normal_mode(args):
         
         # Apply changes if approved and not in dry-run mode
         if args.dry_run:
-            dry_run_panel = Panel(
-                "🔍 [bold yellow]Dry-run mode[/bold yellow] - Changes preview only",
-                style="yellow",
-                box=box.ROUNDED
-            )
-            console.print(dry_run_panel)
+            show_warning_message("🔍 Dry-run mode - Changes preview only")
             logger.log_user_decision("dry_run", False, validated_path.name)
             end_session(True)
         elif get_user_approval(changes_detected=True):
-            with console.status("[bold green]💾 Applying changes...", spinner="dots"):
+            with console.status(f"[bold {GLYPH_SUCCESS}]💾 Applying changes...", spinner="dots"):
                 backup_path = write_markdown_file(str(validated_path), cleaned_content)
             
-            success_text = Text()
-            success_text.append("✅ Changes applied to ", style="bold green")
-            success_text.append(str(validated_path), style="bold cyan")
+            show_success_message(
+                f"✅ Changes applied to {validated_path}",
+                f"💾 Original backed up to {backup_path}" if backup_path else ""
+            )
             
-            console.print(Panel(success_text, style="green", box=box.ROUNDED))
-            
-            if backup_path:
-                console.print(f"[dim]💾 Original backed up to {backup_path}[/dim]")
+            # Attempt to open the modified file in Obsidian (unless disabled)
+            if not args.no_obsidian:
+                try:
+                    open_in_obsidian_if_available(str(validated_path))
+                except Exception as e:
+                    # Don't fail the whole operation if Obsidian opening fails
+                    console.print(f"[dim yellow]⚠️ Could not open in Obsidian: {e}[/dim yellow]")
             
             logger.log_user_decision("accept", True, validated_path.name, backup_path)
             logger.log_file_operation("write", validated_path.name, True, backup_path)
             end_session(True)
         else:
-            console.print("❌ [yellow]Changes rejected by user[/yellow]")
+            show_warning_message("❌ Changes rejected by user")
             logger.log_user_decision("reject", False, validated_path.name)
             end_session(True)
             
     except Exception as e:
-        error_panel = Panel(
-            f"❌ [bold red]Error:[/bold red] {str(e)}",
-            style="red",
-            box=box.ROUNDED
-        )
-        console.print(error_panel)
+        show_error_message(f"❌ Error: {str(e)}")
         end_session(False)
 
 def main():
@@ -398,9 +482,22 @@ def main():
     parser.add_argument("--enter-stop", "-e", action="store_true", help="Use Enter key to stop recording (prevents terminal interference)")
     parser.add_argument("--setup-audio", action="store_true", help="Run audio device configuration wizard")
     parser.add_argument("--setup-model", action="store_true", help="Run Whisper model configuration wizard")
+    parser.add_argument("--setup-transcription", action="store_true", help="Run transcription method configuration wizard")
+    parser.add_argument("--transcription-method", choices=["local", "openai_api"], help="Force specific transcription method for this session")
+    parser.add_argument("--test-transcription", action="store_true", help="Test all transcription methods")
     parser.add_argument("--show-config", action="store_true", help="Display all current configurations and defaults")
+    parser.add_argument("--logo", action="store_true", help="Show ASCII logo on startup")
+    parser.add_argument("--no-obsidian", action="store_true", help="Don't automatically open files in Obsidian after changes")
+    parser.add_argument("--agent-mode", "-a", action="store_true", help="Start agent mode for voice-controlled Obsidian management")
+    parser.add_argument("--text-only", action="store_true", help="Use text input instead of voice (for testing agent logic)")
+    parser.add_argument("--setup-agent", action="store_true", help="Run agent configuration wizard")
     
     args = parser.parse_args()
+    
+    # Handle logo display first
+    if args.logo:
+        show_ascii_logo()
+        return
     
     # Handle special modes first
     if args.setup_audio:
@@ -411,8 +508,20 @@ def main():
         handle_model_setup()
         return
     
+    if args.setup_transcription:
+        handle_transcription_setup()
+        return
+    
+    if args.setup_agent:
+        handle_agent_setup()
+        return
+    
+    if args.test_transcription:
+        handle_transcription_test()
+        return
+    
     if args.show_config:
-        show_all_configurations()
+        show_config_overview()
         return
         
     if args.undo:
@@ -421,6 +530,10 @@ def main():
     
     if args.live:
         handle_live_mode(args)
+        return
+    
+    if args.agent_mode:
+        handle_agent_mode(args)
         return
     
     if args.interactive:

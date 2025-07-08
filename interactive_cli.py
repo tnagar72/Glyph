@@ -19,6 +19,10 @@ from rich import box
 
 from md_file import validate_markdown_path
 from utils import WHISPER_MODEL, verbose_print
+from ui_helpers import (
+    GLYPH_PRIMARY, GLYPH_SECONDARY, GLYPH_ACCENT, GLYPH_HIGHLIGHT,
+    GLYPH_SUCCESS, GLYPH_ERROR, GLYPH_WARNING, GLYPH_MUTED, GLYPH_VOICE
+)
 
 console = Console()
 
@@ -31,72 +35,90 @@ class InteractiveCLI:
             'whisper_model': WHISPER_MODEL,
             'dry_run': False,
             'verbose': False,
-            'transcript_only': False
+            'transcript_only': False,
+            'no_obsidian': False,
+            'transcription_method': None
         }
     
     def show_banner(self):
-        """Display the application banner."""
+        """Display the application banner with Glyph styling."""
         banner_text = Text()
-        banner_text.append("🎙️ ", style="bold yellow")
-        banner_text.append("Glyph", style="bold white")
-        banner_text.append(" - Interactive Mode", style="bold cyan")
+        banner_text.append("◈ ", style=f"bold {GLYPH_ACCENT}")
+        banner_text.append("Glyph", style=f"bold {GLYPH_PRIMARY}")
+        banner_text.append(" - Interactive Mode", style=f"bold {GLYPH_HIGHLIGHT}")
+        banner_text.append(" ◈", style=f"bold {GLYPH_ACCENT}")
         
         banner = Panel(
             banner_text,
-            style="blue",
-            box=box.DOUBLE,
+            style=GLYPH_PRIMARY,
+            box=box.HEAVY,
             padding=(1, 2)
         )
         console.print(banner)
     
     def show_main_menu(self) -> str:
-        """Display main menu and get user choice."""
-        console.print("\n📋 [bold white]Main Menu[/bold white]")
+        """Display main menu with Glyph styling."""
+        console.print(f"\n◈ [bold {GLYPH_PRIMARY}]Main Menu[/bold {GLYPH_PRIMARY}] ◈")
         
-        # Create menu table
-        table = Table(show_header=False, box=box.ROUNDED, padding=(0, 1))
-        table.add_column("Option", style="bold cyan", width=3)
+        # Create menu table with Glyph styling
+        table = Table(
+            show_header=False, 
+            box=box.HEAVY, 
+            padding=(0, 1),
+            border_style=GLYPH_SECONDARY
+        )
+        table.add_column("Option", style=f"bold {GLYPH_HIGHLIGHT}", width=3)
         table.add_column("Description", style="white")
-        table.add_column("Current", style="dim")
+        table.add_column("Current", style=GLYPH_MUTED)
         
-        # Add menu options
-        file_status = str(self.settings['file']) if self.settings['file'] else "[red]Not set[/red]"
+        # Add menu options with Glyph colors
+        file_status = str(self.settings['file']) if self.settings['file'] else f"[{GLYPH_ERROR}]Not set[/{GLYPH_ERROR}]"
+        # Get current transcription method for display
+        from transcription_config import get_transcription_config
+        config = get_transcription_config()
+        current_method = config.get_transcription_method()
+        method_display = "Local Whisper" if current_method == "local" else "OpenAI API"
+        
         table.add_row("1", "Select markdown file to edit", file_status)
-        table.add_row("2", "Configure Whisper model", f"[green]{self.settings['whisper_model']}[/green]")
-        table.add_row("3", "Toggle options", self._get_options_summary())
-        table.add_row("4", "Start voice editing", "[yellow]Ready[/yellow]" if self.settings['file'] else "[red]Need file[/red]")
-        table.add_row("5", "Live transcription mode", "[cyan]Real-time[/cyan]")
-        table.add_row("6", "Undo recent changes", "[magenta]Restore[/magenta]")
-        table.add_row("q", "Quit", "[dim]Exit[/dim]")
+        table.add_row("2", "Configure Whisper model", f"[{GLYPH_SUCCESS}]{self.settings['whisper_model']}[/{GLYPH_SUCCESS}]")
+        table.add_row("3", "Configure transcription method", f"[{GLYPH_HIGHLIGHT}]{method_display}[/{GLYPH_HIGHLIGHT}]")
+        table.add_row("4", "Toggle options", self._get_options_summary())
+        table.add_row("5", "Start voice editing", f"[{GLYPH_WARNING}]Ready[/{GLYPH_WARNING}]" if self.settings['file'] else f"[{GLYPH_ERROR}]Need file[/{GLYPH_ERROR}]")
+        table.add_row("6", "Agent mode (Obsidian)", f"[{GLYPH_VOICE}]🤖 Assistant[/{GLYPH_VOICE}]")
+        table.add_row("7", "Live transcription mode", f"[{GLYPH_VOICE}]Real-time[/{GLYPH_VOICE}]")
+        table.add_row("8", "Undo recent changes", f"[{GLYPH_SECONDARY}]Restore[/{GLYPH_SECONDARY}]")
+        table.add_row("q", "Quit", f"[{GLYPH_MUTED}]Exit[/{GLYPH_MUTED}]")
         
         console.print(table)
         
         choice = Prompt.ask(
-            "\n🎯 [bold white]Choose an option[/bold white]",
-            choices=["1", "2", "3", "4", "5", "6", "q"],
-            default="1" if not self.settings['file'] else "4"
+            f"\n◈ [bold {GLYPH_PRIMARY}]Choose an option[/bold {GLYPH_PRIMARY}] ◈",
+            choices=["1", "2", "3", "4", "5", "6", "7", "8", "q"],
+            default="1" if not self.settings['file'] else "5"
         )
         
         return choice
     
     def _get_options_summary(self) -> str:
-        """Get a summary of current option settings."""
+        """Get a summary of current option settings with Glyph colors."""
         options = []
         if self.settings['dry_run']:
-            options.append("[yellow]dry-run[/yellow]")
+            options.append(f"[{GLYPH_WARNING}]dry-run[/{GLYPH_WARNING}]")
         if self.settings['verbose']:
-            options.append("[cyan]verbose[/cyan]")
+            options.append(f"[{GLYPH_HIGHLIGHT}]verbose[/{GLYPH_HIGHLIGHT}]")
         if self.settings['transcript_only']:
-            options.append("[green]transcript-only[/green]")
+            options.append(f"[{GLYPH_SUCCESS}]transcript-only[/{GLYPH_SUCCESS}]")
+        if self.settings['no_obsidian']:
+            options.append(f"[{GLYPH_MUTED}]no-obsidian[/{GLYPH_MUTED}]")
         
-        return ", ".join(options) if options else "[dim]none[/dim]"
+        return ", ".join(options) if options else f"[{GLYPH_MUTED}]none[/{GLYPH_MUTED}]"
     
     def select_file(self):
-        """Interactive file selection."""
-        console.print("\n📁 [bold white]File Selection[/bold white]")
+        """Interactive file selection with Glyph styling."""
+        console.print(f"\n◈ [bold {GLYPH_PRIMARY}]File Selection[/bold {GLYPH_PRIMARY}] ◈")
         
         # Option 1: Enter file path manually
-        console.print("\n[cyan]Option 1:[/cyan] Enter file path directly")
+        console.print(f"\n[{GLYPH_HIGHLIGHT}]Option 1:[/{GLYPH_HIGHLIGHT}] Enter file path directly")
         file_path = Prompt.ask(
             "📝 File path (or Enter to browse)",
             default=""
@@ -106,10 +128,10 @@ class InteractiveCLI:
             try:
                 validated_path = validate_markdown_path(file_path)
                 self.settings['file'] = str(validated_path)
-                console.print(f"✅ Selected: [green]{self.settings['file']}[/green]")
+                console.print(f"✅ Selected: [{GLYPH_SUCCESS}]{self.settings['file']}[/{GLYPH_SUCCESS}]")
                 return
             except Exception as e:
-                console.print(f"❌ [red]Error: {e}[/red]")
+                console.print(f"❌ [{GLYPH_ERROR}]Error: {e}[/{GLYPH_ERROR}]")
         
         # Option 2: Browse common locations
         self._browse_files()
@@ -226,6 +248,18 @@ class InteractiveCLI:
         self.settings['whisper_model'] = selected_model
         console.print(f"✅ Model set to: [green]{selected_model}[/green]")
     
+    def configure_transcription(self):
+        """Configure transcription method."""
+        from transcription_config import setup_transcription_method
+        
+        console.print(f"\n🎯 [bold {GLYPH_PRIMARY}]Transcription Method Configuration[/bold {GLYPH_PRIMARY}]")
+        method = setup_transcription_method()
+        
+        if method:
+            console.print(f"✅ Transcription method set to: [{GLYPH_SUCCESS}]{method}[/{GLYPH_SUCCESS}]")
+        else:
+            console.print(f"❌ [{GLYPH_ERROR}]Transcription configuration cancelled[/{GLYPH_ERROR}]")
+    
     def toggle_options(self):
         """Toggle various options."""
         console.print("\n⚙️ [bold white]Options Configuration[/bold white]")
@@ -233,7 +267,8 @@ class InteractiveCLI:
         options = [
             ("dry_run", "Dry Run", "Preview changes without applying"),
             ("verbose", "Verbose", "Show detailed debug output"),
-            ("transcript_only", "Transcript Only", "Voice-to-text without GPT processing")
+            ("transcript_only", "Transcript Only", "Voice-to-text without GPT processing"),
+            ("no_obsidian", "No Obsidian", "Don't automatically open files in Obsidian")
         ]
         
         while True:
@@ -282,17 +317,22 @@ class InteractiveCLI:
             elif choice == "2":
                 self.configure_model()
             elif choice == "3":
-                self.toggle_options()
+                self.configure_transcription()
             elif choice == "4":
+                self.toggle_options()
+            elif choice == "5":
                 if not self.settings['file']:
                     console.print("❌ [red]Please select a file first[/red]")
                     continue
                 console.print("🚀 [green]Starting voice editing...[/green]")
                 return self.get_settings()
-            elif choice == "5":
+            elif choice == "6":
+                console.print("🤖 [cyan]Starting agent mode...[/cyan]")
+                return {'mode': 'agent'}
+            elif choice == "7":
                 console.print("🎤 [cyan]Starting live transcription mode...[/cyan]")
                 return {'mode': 'live'}
-            elif choice == "6":
+            elif choice == "8":
                 self._handle_undo_menu()
             elif choice == "q":
                 console.print("👋 [yellow]Goodbye![/yellow]")

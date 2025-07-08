@@ -18,6 +18,44 @@
 - **Enter-to-stop method** (`--enter-stop`): Auto-starts recording, press Enter when finished
 - Use enter-to-stop if you experience terminal interference in iTerm
 
+## 🎤 **Transcription & Audio**
+
+### Q: What's the difference between local and OpenAI API transcription?
+**A:** 
+
+| Feature | Local Whisper | OpenAI API |
+|---------|---------------|------------|
+| **Cost** | Free | $0.006/minute |
+| **Privacy** | Fully private | Data sent to OpenAI |
+| **Internet** | Not required | Required |
+| **Speed** | Slower (CPU intensive) | Faster |
+| **Accuracy** | Good | Excellent |
+| **Setup** | Model download | API key required |
+
+### Q: How do I set up OpenAI API transcription?
+**A:** 
+1. Get an API key from [OpenAI](https://platform.openai.com/api-keys)
+2. Set environment variable: `export OPENAI_API_KEY='your-key'`
+3. Run setup wizard: `glyph --setup-transcription`
+4. Choose option 2: "OpenAI API"
+
+### Q: Can I switch transcription methods per session?
+**A:** Yes! Use CLI flags:
+```bash
+# Force OpenAI API for this session
+glyph --file notes.md --transcription-method openai_api
+
+# Force local Whisper for this session  
+glyph --file notes.md --transcription-method local
+```
+
+### Q: How do I test which transcription method works better?
+**A:** Use the testing feature:
+```bash
+glyph --test-transcription
+```
+This will test both methods with the same audio sample.
+
 ## 🎤 **Audio & Recording Issues**
 
 ### Q: "Audio capture failed" - what's wrong?
@@ -36,13 +74,21 @@ python main.py --enter-stop --file your-file.md
 
 ### Q: The transcription is inaccurate. How can I improve it?
 **A:** Try these approaches:
-1. **Use a larger model**: `--whisper-model large` (slower but more accurate)
-2. **Speak clearly** in a quiet environment
-3. **Position microphone** closer to your mouth
-4. **Check audio levels** - too quiet or too loud affects accuracy
-5. **Avoid background noise** and echo
+1. **Switch to OpenAI API**: `--transcription-method openai_api` (more accurate)
+2. **Use a larger local model**: `--whisper-model large` (slower but more accurate)
+3. **Speak clearly** in a quiet environment
+4. **Position microphone** closer to your mouth
+5. **Check audio levels** - too quiet or too loud affects accuracy
+6. **Avoid background noise** and echo
 
-### Q: Which Whisper model should I use?
+### Q: Which transcription method should I use?
+**A:** Choose based on your needs:
+- **OpenAI API**: Faster, more accurate, requires internet and API key ($0.006/minute)
+- **Local Whisper**: Free, private, works offline, slower
+
+Configure with `glyph --setup-transcription`
+
+### Q: Which Whisper model should I use (for local transcription)?
 **A:** 
 - **tiny/base**: Fast testing, simple commands
 - **small**: Good balance for regular use
@@ -226,9 +272,10 @@ python main.py --file notes.md --dry-run --verbose
 
 ### Q: How much does it cost to run?
 **A:** Costs depend on OpenAI API usage:
-- **Whisper transcription**: Free (runs locally)
+- **Local Whisper transcription**: Free (runs locally)
+- **OpenAI API transcription**: $0.006 per minute of audio
 - **GPT-4 API calls**: ~$0.03 per 1K tokens (varies by usage)
-- **Typical session**: $0.10-0.50 for moderate editing
+- **Typical session**: $0.10-0.50 for moderate editing (plus transcription costs if using API)
 
 ## 🤝 **Contributing & Development**
 

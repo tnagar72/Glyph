@@ -3,351 +3,355 @@
 </p>
 
 <h1 align="center">Glyph</h1>
+<p align="center"><em>Voice-controlled markdown editing that doesn't suck</em></p>
 
-**Transform your voice into intelligent markdown edits using Whisper and GPT-4**
+**Voice is an underutilized interface. Most tools treat it as a gimmick, but voice can drive complex workflows faster than typing when done right.**
 
-Edit your Obsidian notes, documentation, and markdown files using natural voice commands. Say "mark the second task as complete" and watch your markdown update automatically.
+**Glyph is a voice-native, agentic markdown editor with conversational AI that learns your patterns and maintains context across sessions.**
 
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![OpenAI Powered](https://img.shields.io/badge/OpenAI-GPT--4-green.svg)](https://openai.com/)
-[![Whisper](https://img.shields.io/badge/Whisper-Local-orange.svg)](https://github.com/openai/whisper)
-[![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Linux%20%7C%20Windows-lightgrey.svg)](#installation)
-[![CLI Tool](https://img.shields.io/badge/interface-CLI-blue.svg)](#usage)
-[![Obsidian](https://img.shields.io/badge/Obsidian-Compatible-purple.svg)](https://obsidian.md/)
+[![Whisper](https://img.shields.io/badge/Whisper-Local%20%2B%20API-orange.svg)](https://github.com/openai/whisper)
 
-<!-- TODO: Add demo gif or screenshot here -->
+---
 
-## What is this?
+## Documentation
 
-A voice-controlled markdown editor that combines OpenAI Whisper (local speech recognition) with GPT-4 to intelligently edit your markdown files through natural voice commands.
+- **[Installation Guide](INSTALLATION.md)** - Setup and configuration
+- **[Complete Functionality](FUNCTIONALITY.md)** - Feature overview and usage examples
+- **[Architecture Documentation](ARCHITECTURE.md)** - Technical design and implementation
+- **[Testing Guide](TESTING_GUIDE.md)** - QA documentation and test coverage
+- **[Contributing Guidelines](CONTRIBUTING.md)** - Development setup and contribution process
 
-Perfect for Obsidian users, writers, and knowledge workers who want hands-free markdown editing.
+---
 
-## ✨ Core Features
+## What this does
 
-- 🎤 **Local Voice Recognition**: OpenAI Whisper transcription (no cloud audio processing)
-- 🧠 **Intelligent Editing**: GPT-4 understands context and intent 
-- 🖥️ **Rich Terminal UI**: Beautiful diffs, progress indicators, and interactive menus
-- 📝 **Safe Operations**: Centralized backup system with automatic cleanup and undo functionality
-- 🎯 **Obsidian Compatible**: Preserves `[[links]]`, `#tags`, and frontmatter
+Glyph has two modes:
 
-## Supported Use Cases
+1. **Direct editing**: Point it at a markdown file, say what you want changed, see a diff, approve or reject
+2. **Agent mode**: Conversational AI that manages your entire Obsidian vault, remembers context across sessions
 
-- **Task Management**: "Mark the third task as complete", "Add grocery shopping to personal tasks"
-- **Note Organization**: "Move the ideas section to the top", "Create a new section called Research"
-- **Content Updates**: "Change the meeting time from 2 PM to 3 PM", "Remove completed items"
-- **Live Transcription**: Real-time voice-to-text for meeting notes and brainstorming
-- **Clipboard Integration**: Direct speech-to-clipboard for quick text input
+The agent mode is where it gets interesting - it learns how you refer to your notes and can handle complex multi-step operations through natural conversation.
 
-## Who is this for?
+---
 
-- **Obsidian Users**: Voice-edit your vault without breaking formatting
-- **Knowledge Workers**: Quick updates to documentation and notes
-- **Writers**: Hands-free editing for creative flow
-- **Neurodiverse Creators**: Alternative input method for accessibility
-- **Busy Professionals**: Fast updates while multitasking
+## Why I built this
 
-## 🚀 **Quick Start**
+Most tools treat voice as an afterthought - a novelty feature that barely works. But voice is actually faster than typing for many operations, especially when you're already thinking in natural language.
 
-### Prerequisites
-- Python 3.8+
-- OpenAI API key
-- Microphone access
+Voice commands like "mark the third task complete" or "link this to my architecture notes" are faster than clicking through menus, but most voice tools can't handle context or remember how you work.
 
-### Installation
+Voice works everywhere - on mobile where typing sucks, when your hands are busy, or when you're thinking through complex problems and don't want to stop to navigate UIs. The key is building voice interfaces that actually understand what you mean and remember what you've done, not just transcribe words. Glyph achieves this through persistent memory, multi-turn conversations, context tracking, and a learning system that improves with usage.
 
-1. **Clone the repository:**
+---
+
+## Quick start
+
 ```bash
 git clone https://github.com/tnagar72/Glyph.git
 cd Glyph
-```
-
-2. **Install dependencies:**
-```bash
+python -m venv glyph_env && source glyph_env/bin/activate
 pip install -r requirements.txt
-```
 
-3. **Set up OpenAI API:**
-```bash
-cp .env.example .env
-# Edit .env and add your OpenAI API key
-```
-
-4. **Test your setup:**
-```bash
+# Test it works
 python main.py --transcript-only
+
+# Try agent mode (the fun part)
+python main.py --setup-agent  # point it at your Obsidian vault
+python main.py --agent-mode
 ```
 
-## 📖 **Usage**
+Then just talk to it:
+```
+You: "Create a note about today's standup"
+Glyph: ✅ Created "Daily Standup 2024-07-08.md"
 
-### Basic Voice Editing
+You: "Add action items section to it" 
+Glyph: ✅ Added section "Action Items" to Daily Standup 2024-07-08.md
+
+You: "Open that note in Obsidian"
+Glyph: ✅ Opened Daily Standup 2024-07-08.md in Obsidian
+```
+
+---
+
+## Direct editing mode
+
+For when you just want to edit a single file:
+
 ```bash
 # Edit a specific file
 python main.py --file notes.md
 
-# Use Enter-to-stop recording (recommended for iTerm)
-python main.py --file notes.md --enter-stop
-
-# Preview changes without applying
+# Preview changes without applying (recommended first time)
 python main.py --file notes.md --dry-run
+
+# Use Enter-to-stop recording if spacebar interferes with your terminal
+python main.py --file notes.md --enter-stop
 ```
 
-### Interactive Mode
-```bash
-# Launch rich menu interface
-python main.py --interactive
-```
-Features file browsing, model selection, and integrated options management.
-
-### Live Transcription
-```bash
-# Real-time voice-to-text streaming
-python main.py --live
-
-# Simple output for piping
-python main.py --live | tee transcript.log
-
-# Copy transcripts to clipboard instead of saving files
-python main.py --live --clipboard
-```
-
-### Advanced Options
-```bash
-# Use different Whisper models (overrides default)
-python main.py --whisper-model large --file notes.md
-
-# Configure default model for all commands
-python main.py --setup-model
-
-# Enable verbose debugging
-python main.py --verbose --file notes.md
-
-# Transcript only (no GPT processing)
-python main.py --transcript-only
-
-# Undo recent changes
-python main.py --undo notes.md
-
-# View all current configurations
-python main.py --show-config
-```
-
-## 🎯 **Voice Command Examples**
-
-### Task Management
-- *"Mark task 2 as complete"*
-- *"Add a new task about grocery shopping"*
-- *"Move the bike repair task under Personal section"*
-
-### Content Editing
-- *"Change the heading from TODO to DONE"*
-- *"Add a bullet point about meeting preparation"*
-- *"Remove the completed tasks section"*
-
-### Structure Modifications
-- *"Create a new section called Ideas"*
-- *"Move all incomplete tasks to the top"*
-- *"Reorder the sections alphabetically"*
-
-## ⚙️ **Configuration**
-
-### View Current Settings
-```bash
-# Display all current configurations and defaults
-python main.py --show-config
-```
-This shows your current Whisper model, audio device, system information, and all configurable options in a comprehensive overview.
-
-### Whisper Models
-| Model | Size | Speed | Accuracy | Use Case |
-|-------|------|--------|----------|----------|
-| tiny | 39MB | Fastest | Basic | Quick testing |
-| base | 74MB | Fast | Good | Simple commands |
-| small | 244MB | Medium | Better | Balanced use |
-| **medium** | 769MB | Slow | High | **Default** |
-| large | 1550MB | Slowest | Highest | Complex commands |
-
-Set your preferred default model with `python main.py --setup-model`
-
-### Audio Device Setup
-```bash
-# Run the interactive audio setup wizard
-python main.py --setup-audio
-
-# Or configure manually:
-# 1. List available devices: python -c "import sounddevice as sd; print(sd.query_devices())"
-# 2. Update DEVICE_INDEX in utils.py
-```
-
-### Model Configuration
-```bash
-# Run the interactive model setup wizard
-python main.py --setup-model
-
-# Choose your preferred default Whisper model for all transcriptions
-# Options: tiny, base, small, medium, large
-```
-
-### Environment Variables
-```bash
-# Optional environment variables
-export WHISPER_MODEL=large        # Override default model
-export VERBOSE=1                  # Enable verbose output
-export OPENAI_API_KEY=your_key    # OpenAI API key
-```
-
-## 🛠️ **Advanced Features**
-
-### Developer Tools
-- **Interactive CLI**: Rich menu system with file browsing and model selection
-- **Live Transcription**: Real-time streaming for testing and integration
-- **Session Logging**: Comprehensive audit trails with JSON and text formats
-- **Undo Management**: Automatic backup discovery and restoration
-
-### Integration Ready
-- **Piping Support**: `python main.py --live | your_processor.py`
-- **Clipboard Integration**: `python main.py --live --clipboard` for direct text input
-- **Batch Processing**: Loop through multiple files with interactive mode
-- **Remote Usage**: SSH-compatible for remote voice control
-
-## 🔧 **Troubleshooting**
-
-### Common Issues
-
-**Audio capture failed:**
-- Check microphone permissions in System Preferences
-- Verify correct audio device index in `utils.py`
-- Test with: `python -c "import sounddevice as sd; sd.rec(1000, samplerate=44100)"`
-
-**OpenAI API errors:**
-- Verify API key in `.env` file
-- Check API usage limits and billing
-- Test with: `python -c "import openai; print(openai.api_key)"`
-
-**Terminal interference (iTerm):**
-- Use `--enter-stop` flag instead of spacebar recording
-- Update iTerm preferences to disable bell sounds
-
-**Transcription accuracy:**
-- Use larger Whisper models (`--whisper-model large`)
-- Ensure quiet environment and clear speech
-- Check microphone positioning and levels
-
-## 📁 **Project Structure**
-
-```
-glyph/
-├── main.py                 # Main entry point
-├── recording.py            # Audio capture system
-├── transcription.py        # Whisper integration
-├── llm.py                 # GPT-4 API integration
-├── interactive_cli.py     # Rich menu interface
-├── live_transcription.py  # Real-time streaming
-├── diff.py                # Change visualization
-├── session_logger.py      # Audit logging
-├── undo_manager.py        # Legacy backup compatibility
-├── backup_manager.py      # Centralized backup system
-├── cleanup_backups.py     # Backup retention management
-├── backups/               # Centralized backup storage
-├── prompts/               # GPT-4 prompt templates
-├── examples/              # Sample markdown files
-├── tests/                 # Test suite
-└── docs/                  # Extended documentation
-```
-
-## 🎥 **Examples & Demos**
-
-<!-- TODO: Add demo video and screenshots here -->
-
-For detailed examples of voice commands and their effects, see [EXAMPLES.md](EXAMPLES.md).
-
-## 🤝 **Contributing**
-
-We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
-
-### Development Setup
-```bash
-git clone https://github.com/tnagar72/Glyph.git
-cd Glyph
-pip install -r requirements.txt
-cp .env.example .env
-# Add your OpenAI API key to .env
-```
-
-### Running Tests
-```bash
-# Test audio system
-python main.py --transcript-only --verbose
-
-# Test interactive mode
-python main.py --interactive
-
-# Test live transcription
-python main.py --live
-
-# Test backup system
-make backup-stats
-```
-
-### Backup Management
-```bash
-# View backup statistics
-python cleanup_backups.py --stats
-
-# List old backup files
-python cleanup_backups.py --list --days 30
-
-# Clean up backups older than 30 days
-python cleanup_backups.py --days 30
-
-# Dry run (see what would be deleted)
-python cleanup_backups.py --dry-run --days 30
-```
-
-## 📚 **Documentation**
-
-- [**FUNCTIONALITY.md**](FUNCTIONALITY.md) - Complete feature documentation
-- [**DEVELOPER_TOOLS.md**](DEVELOPER_TOOLS.md) - Interactive and live modes guide
-- [**WHISPER_MODELS.md**](WHISPER_MODELS.md) - Model selection guide
-- [**CONTRIBUTING.md**](CONTRIBUTING.md) - Development guidelines
-
-## 🚀 **Future Roadmap**
-
-### Planned Features
-- macOS menu bar integration
-- Obsidian plugin development
-- VS Code extension
-- Web interface
-- Mobile app support
-
-### Integration Possibilities
-- GitHub Actions for automated testing
-- PyPI package distribution
-- Docker containerization
-- Cloud deployment options
-
-## 🙏 **Acknowledgments**
-
-- [OpenAI Whisper](https://github.com/openai/whisper) for local speech recognition
-- [Rich](https://github.com/Textualize/rich) for beautiful terminal interfaces
-- [OpenAI GPT-4](https://openai.com/) for intelligent text processing
+Voice command examples:
+- *"Mark the second task as complete"*
+- *"Add a new task about fixing the deployment pipeline"*
+- *"Move the meeting notes section to the top"*
+- *"Change the deadline from Friday to next Monday"*
 
 ---
 
-## 📄 License
+## Agent mode (the interesting part)
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This is where Glyph shines. It's a conversational AI that:
 
-## 🔗 Citation
+- **Remembers context** across the entire session
+- **Learns your note names** and handles typos/variations
+- **Manages your whole vault** with 15+ specialized tools
+- **Handles multi-step operations** through natural conversation
 
-If you use this project in your research or work, please cite:
+```bash
+# Set up once
+python main.py --setup-agent
 
-```bibtex
-@software{glyph,
-  title={Glyph},
-  author={Glyph Contributors},
-  year={2025},
-  url={https://github.com/tnagar72/Glyph}
-}
+# Launch agent
+python main.py --agent-mode
+
+# Text-only mode for testing without voice
+python main.py --agent-mode --text-only
 ```
+
+### What the agent can do
+
+**File operations:**
+- Create, read, edit, delete, rename, move notes
+- Add/edit sections within notes
+- Generate summaries and content
+- Create links between notes
+
+**Smart features:**
+- Learns how you refer to notes ("my stanford app" → "Stanford Application.md")
+- Handles typos and partial matches
+- Maintains conversation context ("add that to the note I just created")
+- Automatically backs up before making changes
+
+**Example conversation:**
+```
+You: "Find my notes about the API redesign"
+Agent: Found: "API Redesign Proposal.md", "API Migration Notes.md"
+
+You: "Open the proposal one"
+Agent: ✅ Opened "API Redesign Proposal.md" in Obsidian
+
+You: "Add a section about backwards compatibility"
+Agent: ✅ Added section "Backwards Compatibility" to API Redesign Proposal.md
+
+You: "Link it to my migration notes"
+Agent: ✅ Added wikilink to API Migration Notes.md
+```
+
+---
+
+## Live transcription
+
+Real-time voice-to-text streaming:
+
+```bash
+# Stream to terminal
+python main.py --live
+
+# Copy directly to clipboard
+python main.py --live --clipboard
+
+# Pipe to other tools
+python main.py --live | grep -i "important" | tee important_notes.txt
+```
+
+Great for meeting notes, brainstorming, or any time you need fast voice-to-text.
+
+---
+
+## Configuration
+
+Glyph supports both local Whisper models and OpenAI API transcription:
+
+### Transcription methods
+```bash
+# Configure your preferred method
+python main.py --setup-transcription
+```
+
+| Method | Cost | Privacy | Speed | Accuracy |
+|--------|------|---------|-------|----------|
+| Local Whisper | Free | Complete | 2-10s | Good |
+| OpenAI API | $0.006/min | Data sent to OpenAI | 1-3s | Excellent |
+
+### Whisper models
+```bash
+# Choose model size vs speed tradeoff
+python main.py --setup-model
+```
+
+| Model | Size | Speed | Use case |
+|-------|------|-------|----------|
+| tiny | 39MB | Fastest | Quick testing |
+| base | 74MB | Fast | Simple commands |
+| small | 244MB | Medium | Balanced |
+| **medium** | 769MB | Slow | **Recommended** |
+| large | 1550MB | Slowest | Best accuracy |
+
+### Audio setup
+```bash
+# Interactive device selection
+python main.py --setup-audio
+
+# View all current settings
+python main.py --show-config
+```
+
+---
+
+## Technical details
+
+### Architecture
+
+Two main modes with different strengths:
+
+**Direct mode**: `Voice → Whisper → GPT-4 → Diff → Apply`
+- Single-shot editing with immediate results
+- Rich diff display with user approval
+- Automatic backups and undo support
+
+**Agent mode**: `Voice → Context Analysis → Tool Selection → Execution → Learning`
+- Persistent conversation state and memory
+- Multi-step operations with reference tracking
+- Learning system that improves over time
+
+### Key components
+
+```
+glyph/
+├── main.py                 # Entry point and mode routing
+├── recording.py            # Audio capture with validation
+├── transcription.py        # Dual transcription service
+├── llm.py                 # GPT-4 integration
+├── agent_cli.py           # Conversational interface
+├── agent_tools.py         # 15+ vault management tools
+├── agent_memory.py        # Reference learning system
+├── agent_context.py       # Multi-turn conversation tracking
+├── interactive_cli.py     # Rich terminal interface
+├── live_transcription.py  # Real-time streaming
+├── backup_manager.py      # Centralized backup system
+└── [config files...]      # Audio, model, transcription setup
+```
+
+### Testing
+
+Comprehensive test suite with 100% feature coverage:
+
+```bash
+# Quick validation
+python run_tests_simple.py
+
+# Full test suite (agent + direct mode)
+python run_all_tests.py
+
+# Individual components
+python test_agent_comprehensive.py
+python test_nonagent_comprehensive.py
+```
+
+The tests mock external APIs and audio input, so they run reliably in CI/CD.
+
+---
+
+## Troubleshooting
+
+**Audio not working:**
+```bash
+# Check devices
+python -c "import sounddevice as sd; print(sd.query_devices())"
+
+# Run audio setup
+python main.py --setup-audio
+```
+
+**Transcription errors:**
+```bash
+# Test all methods
+python main.py --test-transcription
+
+# Use larger model for better accuracy
+python main.py --setup-model
+```
+
+**Terminal interference (iTerm users):**
+```bash
+# Use enter-to-stop instead of spacebar
+python main.py --agent-mode --enter-stop
+```
+
+**Import errors:**
+```bash
+# Make sure you're in the virtual environment
+source glyph_env/bin/activate
+```
+
+---
+
+## Requirements
+
+- Python 3.8+ (3.9+ recommended)
+- 2GB+ RAM (4GB+ for large Whisper models)
+- Microphone
+- OpenAI API key (optional, for API transcription)
+- Obsidian (optional, for vault integration)
+
+Works on macOS, Linux, and Windows. Tested primarily on macOS with iTerm2.
+
+---
+
+## What's next
+
+Some ideas I'm considering:
+
+- **Plugin architecture**: Let people write custom agent tools
+- **Voice synthesis**: Have the agent talk back with confirmations
+- **Better context**: Understand relationships between notes
+- **Web interface**: For remote access and mobile use
+- **Custom models**: Train on your specific note patterns
+
+Open to contributions and ideas. This started as a weekend project but has grown into something I use daily.
+
+---
+
+## Files worth looking at
+
+- `agent_tools.py` - The 15+ tools that power agent mode
+- `agent_memory.py` - How the learning system works
+- `transcription.py` - Dual transcription with fallback logic
+- `test_agent_comprehensive.py` - Comprehensive agent testing
+- `TESTING_GUIDE.md` - Complete testing documentation
+
+---
+
+## Contributing
+
+Standard stuff:
+- Fork, branch, PR
+- Run tests before submitting: `python run_all_tests.py`
+- Follow existing code style
+- Add tests for new features
+
+The codebase is pretty clean and well-documented. Most complexity is in the agent system and conversation management.
+
+---
+
+## License
+
+MIT - do whatever you want with it.
+
+If you build something cool on top of this, let me know. Always interested to see how people extend it.
+
+---
+
+**Note**: This tool processes voice locally by default but can use OpenAI's API for transcription and text processing. See the privacy/security section in [FUNCTIONALITY.md](FUNCTIONALITY.md) for details.

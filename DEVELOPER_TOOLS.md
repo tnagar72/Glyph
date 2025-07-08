@@ -52,21 +52,28 @@ python main.py --interactive
 - All future commands will use this model unless overridden
 - Access via main menu or `glyph --setup-model`
 
-#### **3. Options Toggle**
+#### **3. Transcription Configuration**
+- **Method Selection**: Choose between Local Whisper and OpenAI API
+- **API Setup**: Configure OpenAI API key and test connectivity
+- **Method Testing**: Test all available transcription methods
+- **Performance Comparison**: Compare speed and accuracy
+
+#### **4. Options Toggle**
 - **Dry Run**: Preview changes without applying
 - **Verbose**: Show detailed debug output  
 - **Transcript Only**: Voice-to-text without GPT processing
 - **Enter-Stop Recording**: Use ENTER key instead of spacebar (prevents terminal interference)
 
-#### **4. Voice Editing**
+#### **5. Voice Editing**
 - Starts normal voice editing with configured settings
 - Only available when file is selected
 
-#### **5. Live Transcription**
+#### **6. Live Transcription**
 - Switches to real-time voice streaming mode
+- Uses configured transcription method
 - Great for testing and debugging
 
-#### **6. Undo Management**
+#### **7. Undo Management**
 - Lists available backups for selected file
 - One-click restoration with confirmation
 
@@ -80,10 +87,20 @@ python main.py --live
 ```
 **Features:**
 - Beautiful real-time display with Rich UI
+- Uses configured transcription method (local or OpenAI API)
 - Shows last 10 transcripts
 - Session statistics (duration, transcript count)
 - Auto-saves transcripts to `transcripts/` folder
 - Ctrl+C to stop
+
+### **Live Mode with Method Override**
+```bash
+# Force OpenAI API for this session
+python main.py --live --transcription-method openai_api
+
+# Force local Whisper for this session
+python main.py --live --transcription-method local
+```
 
 ### **Simple Live Mode (for Piping)**
 ```bash
@@ -111,7 +128,8 @@ python live_transcription.py [OPTIONS]
 ```
 
 **Options:**
-- `--model {tiny,base,small,medium,large}` - Whisper model selection
+- `--transcription-method {local,openai_api}` - Force transcription method
+- `--model {tiny,base,small,medium,large}` - Whisper model selection (local only)
 - `--simple` - Simple output mode (good for piping)
 - `--clipboard` - Copy transcripts to clipboard instead of saving
 - `--chunk CHUNK` - Audio chunk duration in seconds (default: 3.0)
@@ -121,8 +139,9 @@ python live_transcription.py [OPTIONS]
 
 #### **1. Development & Debugging**
 ```bash
-# Test different models
-python live_transcription.py --model large --verbose
+# Test different transcription methods
+python live_transcription.py --transcription-method openai_api --verbose
+python live_transcription.py --transcription-method local --model large --verbose
 
 # Quick transcription testing
 python live_transcription.py --model tiny --chunk 2.0
@@ -168,7 +187,13 @@ python live_transcription.py --chunk 1.0
 python live_transcription.py --chunk 5.0
 ```
 
-### **Model Selection for Live Mode**
+### **Transcription Method Selection for Live Mode**
+- **OpenAI API**: Fastest, requires internet and API key
+- **Local Whisper**: Private, works offline, uses more CPU
+
+Configure your preferred default with `glyph --setup-transcription`
+
+### **Model Selection for Live Mode (Local Whisper)**
 - **tiny**: Ultra-fast for real-time demos
 - **base**: Good balance for development  
 - **medium**: Production quality (default)

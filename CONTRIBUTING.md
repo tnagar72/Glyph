@@ -1,275 +1,248 @@
-# Contributing to Voice-Controlled Markdown Editor
+# Contributing to Glyph
 
-Thank you for your interest in contributing to the Voice-Controlled Markdown Editor! This document provides guidelines and information for contributors.
+## Development Setup
 
-## 🎯 **Project Overview**
-
-This project combines local speech recognition (OpenAI Whisper) with GPT-4 to create an intelligent voice-controlled markdown editing system. We welcome contributions that improve functionality, documentation, performance, and user experience.
-
-## 🚀 **Getting Started**
-
-### Prerequisites
-- Python 3.8+
-- Git
-- OpenAI API key
-- Microphone for testing
-
-### Development Setup
-
-1. **Fork and clone the repository:**
 ```bash
 git clone https://github.com/tnagar72/Glyph.git
-cd VoiceMark
-```
-
-2. **Set up virtual environment:**
-```bash
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-```
-
-3. **Install dependencies:**
-```bash
+cd Glyph
+python -m venv glyph_env
+source glyph_env/bin/activate
 pip install -r requirements.txt
+pip install -e ".[dev]"  # Install development dependencies
 ```
 
-4. **Configure environment:**
+## Testing
+
+Always run tests before submitting:
+
 ```bash
-cp .env.example .env
-# Edit .env and add your OpenAI API key
+# Quick validation
+python run_tests_simple.py
+
+# Full test suite
+python run_all_tests.py
+
+# Individual components
+python test_agent_comprehensive.py
+python test_nonagent_comprehensive.py
 ```
 
-5. **Test your setup:**
-```bash
-python main.py --transcript-only --verbose
-```
+Tests mock external APIs and audio input for reliable CI/CD execution.
 
-## 🔧 **Development Guidelines**
+## Code Style
 
-### Code Style
-- Follow PEP 8 Python style guidelines
-- Use descriptive variable and function names
-- Add docstrings to all public functions and classes
-- Keep functions focused and reasonably sized (< 50 lines when possible)
-- Use type hints where beneficial
+- Follow existing patterns and naming conventions
+- Use type hints for function parameters and returns
+- Add docstrings for new classes and public methods
+- Keep functions focused and under 50 lines when possible
 
-### Code Organization
+## Architecture Overview
+
+**Dual-mode design:**
+- `main.py` - Entry point and mode routing
+- `agent_*` modules - Conversational AI system
+- `transcription*` modules - Audio processing pipeline
+- `*_config.py` modules - Persistent configuration
+
+**Key principles:**
+- Separation of concerns
+- Dependency injection for services
+- Comprehensive error handling
+- Automatic fallback strategies
+
+## Adding Features
+
+### Agent Tools
+
+New agent tools go in `agent_tools.py`:
+
 ```python
-# Good: Clear imports and docstrings
-import sounddevice as sd
-from typing import Optional
-
-def transcribe_audio(audio_data: np.ndarray) -> Optional[str]:
-    """Transcribe audio data using Whisper.
-    
-    Args:
-        audio_data: Raw audio data as numpy array
+def _tool_your_feature(self, arg1: str, arg2: Optional[str] = None) -> ToolCallResult:
+    """Brief description of what this tool does."""
+    try:
+        # Validate inputs
+        if not arg1:
+            return ToolCallResult(success=False, message="arg1 is required")
         
-    Returns:
-        Transcribed text or None if transcription failed
-    """
-    # Implementation here
+        # Perform operation
+        result = your_operation(arg1, arg2)
+        
+        # Update memory/context if needed
+        self.memory.register_operation("your_feature", {"arg1": arg1})
+        
+        return ToolCallResult(
+            success=True,
+            message=f"Operation completed: {result}",
+            data={"result": result}
+        )
+    except Exception as e:
+        logger.error(f"Tool your_feature failed: {e}")
+        return ToolCallResult(success=False, message=f"Operation failed: {e}")
 ```
 
-### Testing
-Before submitting changes, test:
-- Basic functionality: `python main.py --transcript-only`
-- Interactive mode: `python main.py --interactive`
-- Live transcription: `python main.py --live`
-- Different Whisper models: `python main.py --whisper-model tiny`
-- Edge cases: empty files, long recordings, API failures
+Then register it in `__init__`:
+```python
+self.tools = {
+    # ... existing tools
+    'your_feature': self._tool_your_feature,
+}
+```
 
-### Error Handling
-- Use descriptive error messages
-- Handle API failures gracefully
-- Provide helpful user feedback
-- Log errors appropriately with verbose mode
+### Transcription Providers
 
-## 🐛 **Reporting Issues**
+New transcription methods go in `transcription.py`:
 
-### Bug Reports
-When reporting bugs, please include:
+```python
+class YourTranscriptionProvider(TranscriptionProvider):
+    def transcribe(self, audio_data, language: str) -> str:
+        # Your implementation
+        pass
+    
+    def test_connection(self) -> Tuple[bool, str]:
+        # Connection validation
+        pass
+```
 
-**Environment:**
-- Operating system and version
-- Python version
-- Dependencies (pip freeze output)
-- Audio device information
+### Configuration
 
-**Steps to Reproduce:**
-1. Exact command used
-2. Input file content (if applicable)
-3. Voice command spoken
-4. Expected vs actual behavior
+New config modules should follow the pattern:
+- Persistent storage in `~/.glyph/`
+- Configuration class with load/save methods
+- Interactive setup function
+- Validation and fallback defaults
 
-**Additional Information:**
-- Error messages or stack traces
-- Verbose output (--verbose flag)
-- Log files from logs/ directory
+## Testing New Features
 
-### Feature Requests
-For new features, please describe:
-- **Use case**: What problem does this solve?
-- **Proposed solution**: How should it work?
-- **Alternatives considered**: Other approaches
-- **Impact**: Who would benefit?
+### Agent Tools
+Add tests to `test_agent_comprehensive.py`:
 
-## 🔀 **Pull Request Process**
+```python
+def test_your_tool(self):
+    """Test your new tool functionality."""
+    # Setup
+    tools = AgentTools()
+    
+    # Test success case
+    result = tools.execute_tool_call({
+        'tool_call': 'your_feature',
+        'arguments': {'arg1': 'test_value'}
+    })
+    
+    assert result.success
+    assert 'expected_result' in result.message
+    
+    # Test error cases
+    result = tools.execute_tool_call({
+        'tool_call': 'your_feature',
+        'arguments': {}  # Missing required arg
+    })
+    
+    assert not result.success
+```
 
-### Before Submitting
-1. **Create feature branch:**
+### Non-Agent Features
+Add tests to `test_nonagent_comprehensive.py` for direct mode features.
+
+## Pull Request Process
+
+1. **Fork and branch**: Create feature branch from `main`
+2. **Develop**: Implement feature with tests
+3. **Test**: Ensure all tests pass
+4. **Document**: Update relevant documentation
+5. **Submit**: Create PR with clear description
+
+## PR Requirements
+
+- [ ] All tests pass: `python run_all_tests.py`
+- [ ] New features have tests
+- [ ] Documentation updated if needed
+- [ ] Code follows existing style
+- [ ] No API keys or secrets in code
+
+## Common Issues
+
+**Import errors during development:**
 ```bash
-git checkout -b feature/your-feature-name
+# Ensure you're in the virtual environment
+source glyph_env/bin/activate
+
+# Install in development mode
+pip install -e .
 ```
 
-2. **Make your changes:**
-- Follow coding guidelines above
-- Add tests if applicable
-- Update documentation
-- Test thoroughly
+**Tests failing due to missing mocks:**
+- All external API calls should be mocked in tests
+- Audio input is mocked via `AudioMockProvider`
+- File operations use temporary directories
 
-3. **Commit with clear messages:**
-```bash
-git commit -m "Add enter-to-stop recording method
+**Agent memory not persisting:**
+- Memory is only saved on successful operations
+- Check that your tool calls are returning `ToolCallResult(success=True)`
+- Memory files are in `~/.glyph/memory/`
 
-- Implement new recording function without keyboard hooks
-- Add --enter-stop command line flag
-- Update UI to show appropriate instructions
-- Fixes terminal interference issues in iTerm"
-```
+## Code Areas
 
-### Pull Request Template
-Please include:
+**Audio System** (`recording.py`, `audio_config.py`):
+- Cross-platform audio device management
+- Recording validation and processing
+- Device scoring and selection
 
-**Description:**
-- What changes were made?
-- Why were they necessary?
-- How do they work?
+**Transcription** (`transcription*.py`):
+- Dual-method service architecture
+- Automatic fallback logic
+- Provider pattern for extensibility
 
-**Testing:**
-- What testing was performed?
-- Any edge cases considered?
-- Performance impact?
+**Agent System** (`agent_*.py`):
+- Conversational interface and session management
+- Tool execution and error handling
+- Memory and learning systems
+- Context tracking across conversations
 
-**Documentation:**
-- README updates needed?
-- New features documented?
-- Breaking changes noted?
+**UI Components** (`*_cli.py`, `ui_helpers.py`):
+- Rich terminal interfaces
+- Interactive configuration wizards
+- Real-time transcription streaming
 
-**Checklist:**
-- [ ] Code follows style guidelines
-- [ ] Self-review completed
-- [ ] Tests added/updated
-- [ ] Documentation updated
-- [ ] No breaking changes (or clearly documented)
+## Performance Considerations
 
-## 🎨 **Areas for Contribution**
+- Large Whisper models use significant memory
+- API calls should have appropriate timeouts
+- File operations need backup/rollback mechanisms
+- Memory system should handle large reference sets
 
-### High Priority
-- **Cross-platform support**: Windows and Linux compatibility
-- **Additional audio codecs**: Support for more audio formats
-- **Performance optimization**: Faster transcription, lower memory usage
-- **Error recovery**: Better handling of API failures and network issues
+## Security Guidelines
 
-### Medium Priority
-- **Integration examples**: Obsidian plugins, VS Code extensions
-- **Additional Whisper models**: Support for custom models
-- **Batch processing**: Multiple file editing capabilities
-- **Configuration management**: Better settings organization
+- Never commit API keys or secrets
+- Validate all file paths for traversal attacks
+- Sanitize voice command inputs
+- Use secure API clients with SSL verification
 
-### Low Priority
-- **UI enhancements**: More terminal themes, better progress indicators
-- **Testing framework**: Comprehensive test suite
-- **Documentation**: Video tutorials, advanced usage guides
-- **Packaging**: PyPI distribution, Docker containers
+## Documentation
 
-### Code Quality
-- **Type hints**: Add typing throughout codebase
-- **Refactoring**: Improve code organization and modularity
-- **Documentation**: API docs, inline comments
-- **Performance**: Profiling and optimization
+- Update `FUNCTIONALITY.md` for new features
+- Add architecture details to `ARCHITECTURE.md`
+- Update `INSTALLATION.md` for new dependencies
+- Add examples to `README.md` for major features
 
-## 🏗️ **Architecture Guidelines**
+## Release Process
 
-### Module Responsibilities
-- **main.py**: Entry point and argument parsing
-- **recording.py**: Audio capture and device management
-- **transcription.py**: Whisper integration and audio processing
-- **llm.py**: GPT-4 API communication
-- **interactive_cli.py**: Rich terminal interface
-- **diff.py**: Change visualization and user approval
+1. Update version in `main.py` and `setup.py`
+2. Update `CHANGELOG.md` with new features
+3. Run full test suite
+4. Create release tag
+5. Update PyPI package (if applicable)
 
-### Design Principles
-- **Modularity**: Each module has clear responsibilities
-- **Error resilience**: Graceful failure handling
-- **User experience**: Clear feedback and intuitive interface
-- **Performance**: Efficient resource usage
-- **Extensibility**: Easy to add new features
+## Getting Help
 
-## 🧪 **Testing Guidelines**
+- Check existing issues for similar problems
+- Review `TESTING_GUIDE.md` for testing patterns
+- Look at recent commits for implementation examples
+- Open discussion for design questions before major changes
 
-### Manual Testing Checklist
-- [ ] Basic voice editing workflow
-- [ ] Interactive CLI navigation
-- [ ] Live transcription streaming
-- [ ] Error handling (no API key, no microphone, etc.)
-- [ ] Different Whisper models
-- [ ] Various markdown file types
-- [ ] Backup and undo functionality
+## Design Philosophy
 
-### Automated Testing (Future)
-We welcome contributions to set up:
-- Unit tests for core functions
-- Integration tests for API interactions
-- Performance benchmarks
-- Cross-platform compatibility tests
-
-## 📝 **Documentation Standards**
-
-### Code Documentation
-- Docstrings for all public functions
-- Inline comments for complex logic
-- Type hints for function signatures
-- Examples in docstrings when helpful
-
-### User Documentation
-- Clear, step-by-step instructions
-- Real-world examples
-- Troubleshooting sections
-- Platform-specific notes
-
-## 🤝 **Community Guidelines**
-
-### Code of Conduct
-- Be respectful and inclusive
-- Provide constructive feedback
-- Help others learn and contribute
-- Focus on technical discussions
-
-### Communication
-- Use clear, descriptive issue titles
-- Provide sufficient detail in descriptions
-- Be patient with response times
-- Ask questions when unsure
-
-## 🎉 **Recognition**
-
-Contributors will be:
-- Listed in repository contributors
-- Mentioned in release notes for significant contributions
-- Credited in documentation for major features
-
-## 📞 **Getting Help**
-
-### Before Asking
-1. Check existing issues and documentation
-2. Search previous discussions
-3. Test with verbose mode enabled
-4. Review relevant code sections
-
-### Where to Ask
-- **GitHub Issues**: Bug reports and feature requests
-- **GitHub Discussions**: General questions and ideas
-- **Pull Request Comments**: Code-specific questions
-
-Thank you for contributing to Voice-Controlled Markdown Editor! 🎙️
+- **Terminal-first**: Built for developers who live in the terminal
+- **Voice-optimized**: Natural language over rigid commands
+- **Fallback-ready**: Always have a backup plan
+- **Learning-capable**: Systems that improve with usage
+- **Privacy-conscious**: Local processing by default

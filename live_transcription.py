@@ -24,12 +24,9 @@ from rich.text import Text
 from rich.table import Table
 from rich import box
 
-import whisper
-import scipy.io.wavfile
-import tempfile
-import os
-from transcription import save_transcript
-from utils import SAMPLE_RATE, CHANNELS, DEVICE_INDEX, WHISPER_MODEL, verbose_print
+from transcription import save_transcript, get_transcription_service
+from transcription_config import get_transcription_config
+from utils import SAMPLE_RATE, CHANNELS, DEVICE_INDEX, verbose_print
 from audio_config import get_audio_device
 
 console = Console()
@@ -37,8 +34,12 @@ console = Console()
 class LiveTranscriber:
     """Real-time voice transcription with streaming output."""
     
-    def __init__(self, model: str = WHISPER_MODEL, chunk_duration: float = 5.0):
-        self.model = model
+    def __init__(self, chunk_duration: float = 5.0, transcription_method: Optional[str] = None):
+        # Get transcription configuration
+        self.config = get_transcription_config()
+        self.transcription_service = get_transcription_service()
+        self.transcription_method = transcription_method or self.config.get_transcription_method()
+        
         self.chunk_duration = chunk_duration  # seconds
         self.chunk_size = int(SAMPLE_RATE * chunk_duration)
         
@@ -51,7 +52,6 @@ class LiveTranscriber:
         self.chunk_start_time = None  # Track when chunk recording started
         self.session_transcript_file = None  # Single file for entire session
         self.clipboard_text = ""  # Accumulated text for clipboard mode
-        self._whisper_model = None  # Cache for the whisper model
         
     def audio_callback(self, indata, frames, time, status):
         """Callback for audio input stream."""
@@ -63,52 +63,28 @@ class LiveTranscriber:
             current_time = datetime.now()
             self.audio_queue.put((indata.copy(), current_time))
     
-    def load_whisper_model(self):
-        """Load and cache the Whisper model for this transcriber."""
-        if self._whisper_model is None:
-            verbose_print(f"Loading Whisper model '{self.model}' (this may take a moment)...")
-            self._whisper_model = whisper.load_model(self.model)
-            verbose_print(f"Whisper model '{self.model}' loaded successfully")
-        return self._whisper_model
-    
     def transcribe_audio_with_model(self, audio_data):
-        """Transcribe audio data using this transcriber's configured model."""
+        """Transcribe audio data using the configured transcription service."""
         if audio_data is None or len(audio_data) == 0:
             return None
         
         try:
-            # Load the model (cached after first use)
-            model = self.load_whisper_model()
+            # Use the transcription service with the configured method
+            verbose_print(f"Transcribing with method: {self.transcription_method}")
+            transcript = self.transcription_service.transcribe(
+                audio_data, 
+                method=self.transcription_method,
+                language="auto"  # Let the service handle language detection
+            )
             
-            # Create temporary file for audio
-            with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmpfile:
-                scipy.io.wavfile.write(tmpfile.name, SAMPLE_RATE, audio_data)
-                verbose_print(f"Saved audio to temporary file: {tmpfile.name}")
-                
-                # Transcribe with better parameters for accuracy
-                verbose_print("Starting Whisper transcription with optimized parameters...")
-                result = model.transcribe(
-                    tmpfile.name,
-                    language="en",  # Specify English for better accuracy
-                    task="transcribe",  # Explicit task specification
-                    temperature=0.0,  # Lower temperature for more consistent results
-                    best_of=2,  # Try multiple decoding attempts for better accuracy
-                    beam_size=5,  # Use beam search for better quality
-                    fp16=False  # Use fp32 for better accuracy on CPU
-                )
-                verbose_print("Whisper transcription completed")
-                
-                # Clean up temporary file
-                try:
-                    os.unlink(tmpfile.name)
-                    verbose_print(f"Cleaned up temporary file: {tmpfile.name}")
-                except:
-                    pass  # Ignore cleanup errors
-                    
-                return result['text'].strip()
-                
+            if transcript and transcript.strip():
+                verbose_print(f"Transcription successful: {len(transcript)} characters")
+                return transcript.strip()
+            else:
+                verbose_print("Transcription returned empty result")
+                return None
         except Exception as e:
-            verbose_print(f"Transcription error: {e}")
+            verbose_print(f"Live transcription error: {e}")
             return None
     
     def transcription_worker(self):
@@ -230,7 +206,11 @@ class LiveTranscriber:
             with open(self.session_transcript_file, "w") as f:
                 f.write(f"# Live Transcription Session\n")
                 f.write(f"# Started: {self.session_start.strftime('%Y-%m-%d %H:%M:%S')}\n")
-                f.write(f"# Model: {self.model}\n")
+                f.write(f"# Transcription Method: {self.transcription_method}\n")
+                if self.transcription_method == "local":
+                    f.write(f"# Local Model: {self.config.get_local_whisper_model()}\n")
+                elif self.transcription_method == "openai_api":
+                    f.write(f"# OpenAI Model: {self.config.get_openai_model()}\n")
                 f.write(f"# Chunk Duration: {self.chunk_duration}s\n")
                 f.write(f"#\n\n")
     
@@ -249,7 +229,7 @@ class LiveTranscriber:
                 f.write(f"# Duration: {duration:.1f}s\n")
                 f.write(f"# Total transcripts: {self.total_transcripts}\n")
     
-    def create_live_display(self, transcripts: list) -> Panel:
+    def create_live_display(self, transcripts: list, clipboard_mode: bool = False) -> Panel:
         """Create the live display panel."""
         
         # Header with session info
@@ -275,7 +255,10 @@ class LiveTranscriber:
         # Instructions
         footer = Text()
         footer.append("💡 ", style="yellow")
-        footer.append("Speak normally • Press Ctrl+C to stop • Transcripts auto-saved", style="dim")
+        if clipboard_mode:
+            footer.append("Speak normally • Press Ctrl+C to stop • Transcripts copied to clipboard", style="dim")
+        else:
+            footer.append("Speak normally • Press Ctrl+C to stop • Transcripts auto-saved", style="dim")
         
         full_content = Text()
         full_content.append(content)
@@ -336,7 +319,7 @@ class LiveTranscriber:
                 transcripts = []
                 
                 # Live display loop
-                with Live(self.create_live_display(transcripts), refresh_per_second=2) as live:
+                with Live(self.create_live_display(transcripts, clipboard_mode), refresh_per_second=2) as live:
                     while self.running:
                         try:
                             # Check for new transcripts
@@ -353,7 +336,7 @@ class LiveTranscriber:
                                     print(f"[{timestamp}] {transcript}", file=sys.stdout, flush=True)
                             
                             # Update display
-                            live.update(self.create_live_display(transcripts))
+                            live.update(self.create_live_display(transcripts, clipboard_mode))
                             time.sleep(0.1)
                             
                         except KeyboardInterrupt:
@@ -453,19 +436,19 @@ class LiveTranscriber:
             
             print("# Live transcription ended", file=sys.stderr)
 
-def run_live_transcription(model: str = WHISPER_MODEL, simple: bool = False, 
+def run_live_transcription(transcription_method: Optional[str] = None, simple: bool = False, 
                           chunk_duration: float = 5.0, clipboard_mode: bool = False) -> None:
     """
     Run live transcription mode.
     
     Args:
-        model: Whisper model to use
+        transcription_method: Transcription method to use ("local" or "openai_api"). None for default.
         simple: If True, use simple output mode (good for piping)
         chunk_duration: Audio chunk duration in seconds
         clipboard_mode: If True, copy transcripts to clipboard instead of saving
     """
     
-    transcriber = LiveTranscriber(model, chunk_duration)
+    transcriber = LiveTranscriber(chunk_duration, transcription_method)
     
     if simple:
         transcriber.run_simple_live_mode(save_transcripts=not clipboard_mode, clipboard_mode=clipboard_mode)
@@ -476,8 +459,8 @@ if __name__ == "__main__":
     import argparse
     
     parser = argparse.ArgumentParser(description="Live Voice Transcription")
-    parser.add_argument("--model", "-m", choices=["tiny", "base", "small", "medium", "large"], 
-                       default=WHISPER_MODEL, help="Whisper model to use")
+    parser.add_argument("--transcription-method", choices=["local", "openai_api"], 
+                       help="Transcription method to use (default: configured method)")
     parser.add_argument("--simple", "-s", action="store_true", help="Simple output mode (good for piping)")
     parser.add_argument("--chunk", "-c", type=float, default=5.0, help="Audio chunk duration in seconds")
     parser.add_argument("--clipboard", action="store_true", help="Copy transcripts to clipboard instead of saving")
@@ -489,4 +472,4 @@ if __name__ == "__main__":
         from utils import set_verbose
         set_verbose(True)
     
-    run_live_transcription(args.model, args.simple, args.chunk, args.clipboard)
+    run_live_transcription(getattr(args, 'transcription_method', None), args.simple, args.chunk, args.clipboard)

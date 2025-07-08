@@ -23,7 +23,7 @@ class AudioRecorder:
         if self.recording:
             self.frames.append(indata.copy())
     
-    def start_recording(self, message="🎙️ Recording... Hold SPACEBAR to speak."):
+    def start_recording(self, message=""):
         """Start audio recording stream."""
         self.frames = []
         self.recording = True
@@ -45,7 +45,8 @@ class AudioRecorder:
                 samplerate=SAMPLE_RATE
             )
             self.stream.start()
-            print(message)
+            if message:
+                print(message)
         except sd.PortAudioError as e:
             print(f"❌ Audio Error: {e}")
             print("🔧 Trying to use default input device...")
@@ -56,7 +57,8 @@ class AudioRecorder:
                     samplerate=SAMPLE_RATE
                 )
                 self.stream.start()
-                print(message)
+                if message:
+                    print(message)
             except sd.PortAudioError as e2:
                 print(f"❌ Failed to start audio recording: {e2}")
                 print("💡 Please check your microphone permissions and try again.")
@@ -105,7 +107,6 @@ class AudioRecorder:
 
 def run_voice_capture():
     """Spacebar press-to-talk voice capture with spinner."""
-    print("⌨️ Hold SPACEBAR to record, release to stop...\n")
     
     recorder = AudioRecorder()
     recording_flag = {'value': False}
@@ -117,7 +118,7 @@ def run_voice_capture():
         while recording_flag['value']:
             elapsed = int(time.time() - start_time)
             spinner = next(SPINNER_FRAMES)
-            sys.stdout.write(f"\r🎙️ Recording... {spinner} {elapsed:02d}s")
+            sys.stdout.write(f"\r🎙️ Recording... {spinner} {elapsed:02d}s (Release SPACEBAR to stop)")
             sys.stdout.flush()
             time.sleep(0.1)
     
@@ -148,7 +149,6 @@ def run_voice_capture():
 
 def run_enter_stop_capture():
     """Record audio until user presses Enter key - no keyboard hooks needed."""
-    print("🎙️ Recording started... Press ENTER when finished speaking.")
     
     recorder = AudioRecorder()
     start_time = time.time()
@@ -182,7 +182,7 @@ def run_enter_stop_capture():
 
 def run_simple_record():
     """Simple 5-second audio recording without interaction."""
-    print("🎤 Starting 5-second recording...")
+    print("🎙️ Starting 5-second recording...")
     duration = 5
     audio = sd.rec(int(SAMPLE_RATE * duration), samplerate=SAMPLE_RATE, channels=CHANNELS)
     sd.wait()
