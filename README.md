@@ -3,7 +3,7 @@
 </p>
 
 <h1 align="center">Glyph</h1>
-<p align="center"><em>Voice-controlled Obsidian markdown editing that doesn't suck</em></p>
+<p align="center"><em>Voice-controlled markdown editing that doesn't suck</em></p>
 
 **Voice is an underutilized interface. Most tools treat it as a gimmick, but voice can drive complex workflows faster than typing when done right.**
 
